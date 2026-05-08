@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>算囉 Suen Lor</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#07070f;--gold:#c9a84c;--gold2:#e8c96a;--gold3:#f5dfa0;--cream:#f0ead8;--muted:rgba(240,234,216,0.55);--card:rgba(255,255,255,0.04);--border:rgba(201,168,76,0.2);--r:14px}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--cream);font-family:-apple-system,'PingFang HK','Helvetica Neue',sans-serif;line-height:1.7;overflow-x:hidden}
+canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+.bg-glow{position:fixed;top:30%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(ellipse,rgba(201,168,76,.055) 0%,transparent 70%);pointer-events:none;z-index:0}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 40px;height:60px;display:flex;justify-content:space-between;align-items:center;background:rgba(7,7,15,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-logo{font-size:1.15rem;font-weight:700;color:var(--gold2);letter-spacing:1px;cursor:pointer;flex-shrink:0}
+.nav-tabs{display:flex;gap:2px}
+.nav-tab{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--muted);font-size:.85rem;padding:8px 18px;cursor:pointer;font-family:inherit;transition:color .2s,border-color .2s;letter-spacing:.3px;height:60px}
+.nav-tab:hover{color:var(--cream)}
+.nav-tab.active{color:var(--gold2);border-bottom-color:var(--gold);font-weight:600}
+.page{display:none;position:relative;z-index:1;min-height:100vh}
+.page.active{display:block}
+footer{text-align:center;padding:44px 24px;border-top:1px solid var(--border);color:var(--muted);font-size:.85rem}
+.f-logo{color:var(--gold);font-size:1.05rem;font-weight:700;margin-bottom:8px}
+.f-disc{margin-top:16px;font-size:.72rem;color:rgba(240,234,216,.32);max-width:600px;margin-left:auto;margin-right:auto;line-height:1.7}
+.section{padding:90px 40px;max-width:1100px;margin:0 auto}
+.section.narrow{max-width:800px}
+.section.top{padding-top:100px}
+.s-label{font-size:.75rem;color:var(--gold);letter-spacing:4px;text-transform:uppercase;margin-bottom:12px}
+.s-title{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;line-height:1.2;margin-bottom:10px}
+.s-title span{color:var(--gold2)}
+.s-desc{color:var(--muted);font-size:1rem;max-width:560px;margin-bottom:48px;line-height:1.75}
+.divider{width:50px;height:2px;background:linear-gradient(90deg,var(--gold),transparent);margin:14px 0 40px}
+.grid{display:grid;gap:18px}
+.g3{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.g2{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:26px;transition:border-color .3s,transform .3s}
+.card:hover{border-color:var(--gold);transform:translateY(-3px)}
+.c-icon{font-size:1.8rem;margin-bottom:14px}
+.c-tag{font-size:.7rem;color:var(--gold);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:6px}
+.c-title{font-size:1.2rem;font-weight:700;margin-bottom:10px}
+.c-text{color:var(--muted);font-size:.92rem;line-height:1.75}
+.c-text em{color:var(--gold2);font-style:normal;font-weight:600}
+.sys-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:28px;transition:border-color .3s,transform .3s}
+.sys-card:hover{border-color:var(--gold);transform:translateY(-3px)}
+.sys-emoji{font-size:2.2rem;margin-bottom:14px}
+.sys-name{font-size:1.15rem;font-weight:700;color:var(--gold2);margin-bottom:6px}
+.sys-tagline{font-size:.82rem;color:var(--gold);font-style:italic;margin-bottom:12px}
+.sys-desc{color:var(--muted);font-size:.9rem;line-height:1.75}
+.sys-for{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:.85rem;color:var(--cream)}
+.sys-for strong{color:var(--gold)}
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:80px 24px}
+.eyebrow{font-size:.78rem;color:var(--gold);letter-spacing:4px;text-transform:uppercase;margin-bottom:20px;opacity:.8}
+.hero-title{font-size:clamp(4rem,11vw,8rem);font-weight:800;letter-spacing:-2px;line-height:1;background:linear-gradient(140deg,var(--gold) 0%,var(--gold2) 50%,var(--gold3) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
+.hero-sub{font-size:clamp(.9rem,2vw,1.15rem);letter-spacing:4px;color:var(--muted);margin-bottom:24px}
+.hero-tag{font-size:clamp(1rem,2.5vw,1.35rem);color:var(--cream);max-width:560px;line-height:1.7;margin-bottom:44px}
+.hero-tag em{color:var(--gold2);font-style:normal;font-weight:600}
+.btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07070f;font-weight:700;font-size:1rem;padding:14px 44px;border:none;border-radius:50px;cursor:pointer;letter-spacing:.5px;transition:transform .25s,box-shadow .25s;font-family:inherit}
+.btn:hover{transform:translateY(-3px);box-shadow:0 10px 35px rgba(201,168,76,.35)}
+.calc-wrap{background:rgba(201,168,76,.04);border:1px solid var(--border);border-radius:20px;padding:36px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
+.fg{display:flex;flex-direction:column;gap:7px}
+label{font-size:.8rem;color:var(--gold);letter-spacing:1px}
+input,select{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--cream);font-size:.92rem;outline:none;transition:border-color .2s;font-family:inherit;width:100%}
+input::placeholder{color:rgba(240,234,216,.3)}
+input:focus,select:focus{border-color:var(--gold)}
+select option{background:#1a1a2e}
+.result{display:none;margin-top:26px;background:rgba(201,168,76,.05);border:1px solid var(--border);border-radius:var(--r);padding:26px}
+.result.show{display:block}
+.pillars{display:flex;gap:10px;justify-content:center;margin:18px 0;flex-wrap:wrap}
+.pillar{text-align:center;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:14px 18px;min-width:68px}
+.p-label{font-size:.65rem;color:var(--gold);letter-spacing:2px;margin-bottom:6px}
+.p-gan{font-size:1.7rem;font-weight:700;color:var(--gold2);line-height:1}
+.p-zhi{font-size:1.7rem;font-weight:700;color:var(--cream);line-height:1}
+.p-wx{font-size:.65rem;color:var(--muted);margin-top:4px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 0;padding-top:20px;border-top:1px solid var(--border)}
+.tab-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:10px 16px;color:var(--muted);font-size:.82rem;cursor:pointer;transition:all .2s;font-family:inherit}
+.tab-btn:hover{border-color:var(--gold);color:var(--cream)}
+.tab-btn.active{background:rgba(201,168,76,.12);border-color:var(--gold);color:var(--gold2);font-weight:600}
+.tab-panel{display:none;margin-top:18px}
+.tab-panel.show{display:block}
+.tab-desc{font-size:.82rem;color:var(--muted);margin-bottom:16px;line-height:1.6;padding:12px 14px;background:rgba(255,255,255,.03);border-radius:8px;border-left:2px solid var(--gold)}
+.gen-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07070f;font-weight:700;font-size:.88rem;padding:10px 26px;border:none;border-radius:50px;cursor:pointer;letter-spacing:.5px;transition:transform .2s,box-shadow .2s;margin-bottom:16px;font-family:inherit}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(201,168,76,.3)}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.reading{color:var(--cream);line-height:1.9;font-size:.95rem;white-space:pre-wrap}
+.dots span{display:inline-block;animation:bop 1.1s infinite;color:var(--gold);font-size:1.4rem}
+.dots span:nth-child(2){animation-delay:.18s}
+.dots span:nth-child(3){animation-delay:.36s}
+@keyframes bop{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-7px)}}
+.disclaimer{font-size:.72rem;color:var(--muted);margin-top:22px;line-height:1.6;border-top:1px solid var(--border);padding-top:14px}
+.g-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;transition:border-color .3s}
+.g-card:hover{border-color:var(--gold)}
+.g-term{font-size:1.15rem;font-weight:700;color:var(--gold2);margin-bottom:3px}
+.g-arrow{font-size:.72rem;color:var(--muted);margin-bottom:8px}
+.g-meaning{color:var(--cream);font-size:.9rem;line-height:1.7}
+.gtag{display:inline-block;margin-top:9px;font-size:.7rem;background:rgba(201,168,76,.12);color:var(--gold);padding:3px 10px;border-radius:20px}
+@media(max-width:700px){
+  nav{padding:0 16px}.nav-tab{font-size:.75rem;padding:6px 10px}
+  .section{padding:80px 18px}.form-grid{grid-template-columns:1fr}
+  .g3,.g2{grid-template-columns:1fr}.tabs{gap:6px}.tab-btn{font-size:.76rem;padding:8px 11px}
+}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bg-glow"></div>
+
+<nav>
+  <div class="nav-logo" onclick="showPage('home')">算囉 ✦</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-page="home" onclick="showPage('home')">主頁</button>
+    <button class="nav-tab" data-page="calc" onclick="showPage('calc')">互動算命區</button>
+    <button class="nav-tab" data-page="glossary" onclick="showPage('glossary')">詞彙解碼</button>
+  </div>
+</nav>
+
+<!-- ══ PAGE: 主頁 ══ -->
+<div id="page-home" class="page active">
+  <section id="hero">
+    <p class="eyebrow">✦ 命理 · 唔玄 · 易明 ✦</p>
+    <h1 class="hero-title">算囉</h1>
+    <p class="hero-sub">Suen Lor</p>
+    <p class="hero-tag">想知自己條命係點，<br>但又成日<em>比啲 terms 考起</em>？<br><em>由我哋講俾你聽！</em></p>
+    <button class="btn" onclick="showPage('calc')">算下先 →</button>
+  </section>
+  <div class="section">
+    <p class="s-label">✦ 命理係咩嚟</p>
+    <h2 class="s-title">係一套<span>人生分析系統</span></h2>
+    <div class="divider"></div>
+    <p class="s-desc">古人用幾千年觀察總結出嚟嘅 pattern analysis。你出生嗰刻嘅年月日時，對應住宇宙能量嘅佈局 — 我哋用現代語言拆解俾你聽。</p>
+    <div class="grid g3">
+      <div class="card"><div class="c-icon">🌳🔥🌍⚙️💧</div><div class="c-tag">基礎概念</div><div class="c-title">五行 · Five Elements</div><div class="c-text">木火土金水，唔係話你係「水人」咁簡單。想像呢五種能量<em>互相制衡</em>，就好似個 group chat 入面有人帶頭、有人做和事佬、有人搞氣氛 — 是但冇咗個唔得，但比例唔同就係唔同性格。</div></div>
+      <div class="card"><div class="c-icon">☀️</div><div class="c-tag">你嘅核心設定</div><div class="c-title">天干 · Day Master</div><div class="c-text">十個天干（甲乙丙丁戊己庚辛壬癸），你嘅<em>日干</em>就係你呢個人嘅根本。就好似 MBTI 咁，係你最底層嘅個性底色，後天改唔走嗰種。</div></div>
+      <div class="card"><div class="c-icon">🐉</div><div class="c-tag">你識嘅生肖</div><div class="c-title">地支 · 唔止係生肖</div><div class="c-text">十二地支唔止係生肖，仲包含<em>月份、時辰、方位</em>嘅資訊。你嘅生肖只係年支，但你仲有月支、日支、時支 — 合埋先係完整嘅你，唔好淨係睇生肖。</div></div>
+      <div class="card"><div class="c-icon">🏛️</div><div class="c-tag">四個維度</div><div class="c-title">四柱八字 · 你嘅 Profile</div><div class="c-text">年柱月柱日柱時柱，每柱一個天干一個地支，合共<em>八個字</em>。四個 column 分別代表出身背景、性格潛力、真實自我、隱藏面。</div></div>
+      <div class="card"><div class="c-icon">👑</div><div class="c-tag">你同世界嘅關係</div><div class="c-title">十神 · 係關係，唔係神</div><div class="c-text">食神、傷官、正財、偏財、正官、七殺⋯ 唔係鬼神，係描述你<em>同其他五行嘅關係模式</em>。例如「食神」就係你享受生活嘅能力、創意指數同口福。</div></div>
+      <div class="card"><div class="c-icon">🧭</div><div class="c-tag">人生 Timeline</div><div class="c-title">大運流年 · 你嘅 Chapter</div><div class="c-text">八字係「出廠設定」，大運係每<em>十年一個 chapter</em>，流年係每年嘅 update patch。唔係命中注定唔會變，係有個大概劇本，但你有 agency 去演繹。</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <p class="s-label">✦ 各命理系統</p>
+    <h2 class="s-title">點解有<span>咁多種</span>命理？</h2>
+    <div class="divider"></div>
+    <p class="s-desc">唔同系統係唔同角度睇同一個你，就好似 Instagram、LinkedIn、Tinder 都係你，但側重點唔同。</p>
+    <div class="grid g3">
+      <div class="sys-card"><div class="sys-emoji">📅</div><div class="sys-name">四柱八字</div><div class="sys-tagline">"你係點樣嘅人"</div><div class="sys-desc">用出生年月日時排出四柱八字。重點分析你嘅性格天賦、財運感情、事業走向，仲可以算大運流年係咩 chapter。係最普及嘅入門系統。</div><div class="sys-for"><strong>適合：</strong>想了解自己性格同大方向，想搵個 life coach 式分析。</div></div>
+      <div class="sys-card"><div class="sys-emoji">⭐</div><div class="sys-name">紫微斗數</div><div class="sys-tagline">"你嘅人生劇本"</div><div class="sys-desc">十二個宮位（命宮、財帛宮、感情宮⋯）加上 144 粒星曜排列，係命理界最複雜但最精準嘅系統之一。每個宮位就係你人生唔同範疇嘅故事。</div><div class="sys-for"><strong>適合：</strong>想知特定範疇（感情/事業/健康）嘅詳細分析，接受複雜度高。</div></div>
+      <div class="sys-card"><div class="sys-emoji">⚖️</div><div class="sys-name">五行命理</div><div class="sys-tagline">"你缺乜補乜"</div><div class="sys-desc">由八字延伸，重點分析你命盤入面五行比例係咪平衡。缺水？補藍色、北方、多喝水。火太旺？避衝動、補靜。係最 practical 嘅日常應用系統。</div><div class="sys-for"><strong>適合：</strong>想知日常生活點配合自己命格，例如顏色、方位、職業選擇。</div></div>
+    </div>
+  </div>
+  <footer>
+    <div class="f-logo">算囉 Suen Lor ✦</div>
+    <p>人話解讀 · 娛樂參考用途</p>
+    <p style="margin-top:6px;font-size:.75rem">Made with ✦ for the curious ones</p>
+    <p class="f-disc">本網站所有內容純屬娛樂用途，不構成任何專業意見（包括但不限於財務、法律、醫療或心理建議）。所有解讀結果不保證準確性，請勿以此作人生決定之依據。本站對任何因使用本網站內容而引致之損失或後果概不負責。</p>
+    <p class="f-disc" style="margin-top:8px">AI 解讀由系統自動生成，內容或存在誤差。如需準確及最新資訊，請向專業人士查詢。</p>
+  </footer>
+</div>
+
+<!-- ══ PAGE: 互動算命區 ══ -->
+<div id="page-calc" class="page">
+  <div class="section narrow top">
+    <p class="s-label">✦ 互動算命區</p>
+    <h2 class="s-title">算下你嘅<span>命盤</span></h2>
+    <div class="divider"></div>
+    <p class="s-desc">輸入出生資料，排出四柱八字，再揀你想睇嘅命理系統解讀。</p>
+    <div class="calc-wrap">
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:16px">📅 請輸入<strong style="color:var(--gold)">新曆（公曆／陽曆）</strong>出生資料</p>
+      <div class="form-grid">
+        <div class="fg"><label>出生年份</label><input type="number" id="yr" placeholder="例：2000" min="1900" max="2025"></div>
+        <div class="fg"><label>出生月份</label>
+          <select id="mo"><option value="">選擇月份</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
+        </div>
+        <div class="fg"><label>出生日期</label><input type="number" id="dy" placeholder="例：15" min="1" max="31"></div>
+        <div class="fg"><label>出生時辰</label>
+          <select id="hr"><option value="">選擇時辰</option><option value="23">子時 (23:00–01:00)</option><option value="1">丑時 (01:00–03:00)</option><option value="3">寅時 (03:00–05:00)</option><option value="5">卯時 (05:00–07:00)</option><option value="7">辰時 (07:00–09:00)</option><option value="9">巳時 (09:00–11:00)</option><option value="11">午時 (11:00–13:00)</option><option value="13">未時 (13:00–15:00)</option><option value="15">申時 (15:00–17:00)</option><option value="17">酉時 (17:00–19:00)</option><option value="19">戌時 (19:00–21:00)</option><option value="21">亥時 (21:00–23:00)</option></select>
+        </div>
+        <div class="fg"><label>性別</label>
+          <select id="sex"><option value="">選擇性別</option><option value="男">男</option><option value="女">女</option></select>
+        </div>
+        <div class="fg"><label>出生地點（幫助判斷時區）</label><input type="text" id="loc" placeholder="例：香港、台北、廣州⋯"></div>
+      </div>
+      <button class="btn" onclick="doCalc()" style="width:100%;text-align:center">✦ 排出八字</button>
+      <div class="result" id="res">
+        <p style="font-size:.72rem;color:var(--gold);letter-spacing:3px;margin-bottom:4px">YOUR 四柱八字</p>
+        <div class="pillars" id="pillars"></div>
+        <div class="tabs">
+          <button class="tab-btn active" id="tbtn-0" onclick="switchTab(0)">☯ 四柱八字</button>
+          <button class="tab-btn" id="tbtn-1" onclick="switchTab(1)">👑 十神分析</button>
+          <button class="tab-btn" id="tbtn-2" onclick="switchTab(2)">⚖️ 五行命理</button>
+          <button class="tab-btn" id="tbtn-3" onclick="switchTab(3)">⭐ 紫微斗數</button>
+        </div>
+        <div class="tab-panel show" id="tp-0">
+          <p class="tab-desc">根據你嘅四柱八字，分析性格特質、事業財運、感情走向。</p>
+          <button class="gen-btn" id="gb-0" onclick="genTab(0)">㩒呢度生成解讀 →</button>
+          <div class="reading" id="rd-0"></div>
+        </div>
+        <div class="tab-panel" id="tp-1">
+          <p class="tab-desc">十神係你日干同其他五行嘅關係 — 解讀你同世界嘅互動模式、優勢同潛在挑戰。</p>
+          <button class="gen-btn" id="gb-1" onclick="genTab(1)">㩒呢度生成解讀 →</button>
+          <div class="reading" id="rd-1"></div>
+        </div>
+        <div class="tab-panel" id="tp-2">
+          <p class="tab-desc">分析你八字入面五行嘅強弱比例，睇下缺乜補乜，提供實際生活建議。</p>
+          <button class="gen-btn" id="gb-2" onclick="genTab(2)">㩒呢度生成解讀 →</button>
+          <div class="reading" id="rd-2"></div>
+        </div>
+        <div class="tab-panel" id="tp-3">
+          <p class="tab-desc">紫微斗數以命宮主星為核心，分析你嘅命格、財帛、事業宮特色。（入門參考，精確排盤需專業命理師）</p>
+          <button class="gen-btn" id="gb-3" onclick="genTab(3)">㩒呢度生成解讀 →</button>
+          <div class="reading" id="rd-3"></div>
+        </div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <p style="font-size:.72rem;color:var(--gold);letter-spacing:2px;margin-bottom:10px">✦ 想核實四柱八字？</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <a href="https://forecasting.hk/8words/" target="_blank" style="font-size:.8rem;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:6px 12px;text-decoration:none" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">forecasting.hk →</a>
+            <a href="https://www.suanming.com.tw/" target="_blank" style="font-size:.8rem;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:6px 12px;text-decoration:none" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">suanming.com.tw →</a>
+            <a href="https://myfate.herokuapp.com/" target="_blank" style="font-size:.8rem;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:6px 12px;text-decoration:none" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">myfate.herokuapp.com →</a>
+            <a href="https://www.astrology.tw/" target="_blank" style="font-size:.8rem;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:6px 12px;text-decoration:none" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">astrology.tw →</a>
+          </div>
+        </div>
+        <p class="disclaimer">⚠️ 此解讀為娛樂用途，不構成任何專業意見（包括但不限於財務、法律、醫療或心理建議）。所有解讀結果不保證準確性，請勿以此作人生決定之依據。本站對任何因使用本網站內容而引致之損失或後果概不負責。</p>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="f-logo">算囉 Suen Lor ✦</div>
+    <p>人話解讀 · 娛樂參考用途</p>
+    <p style="margin-top:6px;font-size:.75rem">Made with ✦ for the curious ones</p>
+    <p class="f-disc">本網站所有內容純屬娛樂用途，不構成任何專業意見（包括但不限於財務、法律、醫療或心理建議）。所有解讀結果不保證準確性，請勿以此作人生決定之依據。本站對任何因使用本網站內容而引致之損失或後果概不負責。</p>
+    <p class="f-disc" style="margin-top:8px">AI 解讀由系統自動生成，內容或存在誤差。如需準確及最新資訊，請向專業人士查詢。</p>
+  </footer>
+</div>
+
+<!-- ══ PAGE: 詞彙解碼 ══ -->
+<div id="page-glossary" class="page">
+  <div class="section top">
+    <p class="s-label">✦ 詞彙解碼</p>
+    <h2 class="s-title">命理<span>人話翻譯</span></h2>
+    <div class="divider"></div>
+    <p class="s-desc">成日聽到啲terms但唔知係咩嚟？直接翻譯俾你聽。</p>
+    <div class="grid g2">
+      <div class="g-card"><div class="g-term">食神</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">你係個享樂主義者。識食識玩、有創意、品味高。通常好人緣，唔會太計較。</div><span class="gtag">性格</span></div>
+      <div class="g-card"><div class="g-term">傷官</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">創意反骨仔。極有才華，但超唔鍾意規矩、唔易服人管。做 freelancer 或搞自己嘢嘅多。</div><span class="gtag">性格</span></div>
+      <div class="g-card"><div class="g-term">七殺</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">聽落好勁，其實係壓力同挑戰嘅象徵。有七殺嘅人執行力強，但人生波折多，要靠韌性過關。</div><span class="gtag">運勢</span></div>
+      <div class="g-card"><div class="g-term">正官</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">守規矩嘅人。重視名譽、責任感強，天生適合做管理層。有時會太在意別人眼光。</div><span class="gtag">性格</span></div>
+      <div class="g-card"><div class="g-term">桃花</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">唔係話你有外遇，係指你有 social charm，人緣好、魅力足。桃花旺唔一定係壞事，可以係 networking 天才。</div><span class="gtag">人緣</span></div>
+      <div class="g-card"><div class="g-term">驛馬</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">停唔住嘅人。喜歡移動、出行、變化。適合出差多、移民、或者需要常常走動嘅工作。</div><span class="gtag">運勢</span></div>
+      <div class="g-card"><div class="g-term">印星</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">靠山、學習力、媽媽緣。印星強嘅人好鍾意學嘢，或者有人罩住。讀書運、貴人運都係呢度睇。</div><span class="gtag">關係</span></div>
+      <div class="g-card"><div class="g-term">空亡</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">唔係「白費」，係指某些方向力量較弱，要靠自己努力補。空亡嘅宮位唔係廢，係要加倍用心。</div><span class="gtag">注意</span></div>
+      <div class="g-card"><div class="g-term">偏財</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">橫財、投機財、老豆緣。偏財旺嘅人有賺快錢嘅潛質，但要小心控制，唔好賭上癮。</div><span class="gtag">財運</span></div>
+      <div class="g-card"><div class="g-term">比劫</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">同類競爭者，有時係兄弟姐妹、朋友。比劫旺嘅人獨立心強，但有時係財運嘅阻力——同人爭。</div><span class="gtag">關係</span></div>
+    </div>
+  </div>
+  <footer>
+    <div class="f-logo">算囉 Suen Lor ✦</div>
+    <p>人話解讀 · 娛樂參考用途</p>
+    <p style="margin-top:6px;font-size:.75rem">Made with ✦ for the curious ones</p>
+    <p class="f-disc">本網站所有內容純屬娛樂用途，不構成任何專業意見（包括但不限於財務、法律、醫療或心理建議）。所有解讀結果不保證準確性，請勿以此作人生決定之依據。本站對任何因使用本網站內容而引致之損失或後果概不負責。</p>
+    <p class="f-disc" style="margin-top:8px">AI 解讀由系統自動生成，內容或存在誤差。如需準確及最新資訊，請向專業人士查詢。</p>
+  </footer>
+</div>
+
+<script>
+const cvs=document.getElementById('c'),cx=cvs.getContext('2d');let stars=[];
+function rsz(){cvs.width=innerWidth;cvs.height=innerHeight}
+function init(){stars=Array.from({length:160},()=>({x:Math.random()*cvs.width,y:Math.random()*cvs.height,r:Math.random()*1.4+.3,t:Math.random()*Math.PI*2,spd:Math.random()*.004+.002}))}
+function draw(){cx.clearRect(0,0,cvs.width,cvs.height);stars.forEach(s=>{s.t+=s.spd;const a=.25+.55*Math.abs(Math.sin(s.t));cx.beginPath();cx.arc(s.x,s.y,s.r,0,Math.PI*2);cx.fillStyle=`rgba(201,168,76,${a})`;cx.fill()});requestAnimationFrame(draw)}
+rsz();init();draw();window.addEventListener('resize',()=>{rsz();init()});
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelector(`.nav-tab[data-page="${id}"]`).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+const TG=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const DZ=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const TGwx=['木','木','火','火','土','土','金','金','水','水'];
+const DZwx=['水','土','木','木','土','火','火','土','金','金','土','水'];
+const ZO=['鼠','牛','虎','兔','龍','蛇','馬','羊','猴','雞','狗','豬'];
+
+function yrPillar(y){return{gan:TG[((y-4)%10+10)%10],zhi:DZ[((y-4)%12+12)%12],wx:TGwx[((y-4)%10+10)%10]}}
+function jqd(yr,mo){
+  const Y=yr%100,C20=[0,5.4055,3.87,5.63,4.81,5.52,5.678,6.11,7.5,7.646,7.9,7.18,6.9],C21=[0,5.4055,4.02,5.59,4.748,5.5095,5.678,6.3811,7.5,7.646,7.9,7.18,6.9];
+  return Math.floor(Y*0.2422+(yr>=2000?C21:C20)[mo])-Math.floor(Y/4);
+}
+function moPillar(y,m,d){
+  const jq=jqd(y,m),bY=(m<2||(m===2&&d<jqd(y,2)))?y-1:y;
+  const zi=d>=jq?m%12:(m-1)%12,yg=((bY-4)%10+10)%10;
+  const gi=((yg%5)*2+zi)%10;
+  return{gan:TG[gi],zhi:DZ[zi],wx:TGwx[gi]}
+}
+function dyPillar(y,m,d){
+  const a=Math.floor((14-m)/12),yy=y+4800-a,mm=m+12*a-3;
+  const jdn=d+Math.floor((153*mm+2)/5)+365*yy+Math.floor(yy/4)-Math.floor(yy/100)+Math.floor(yy/400)-32045;
+  const gi=((jdn+49)%10+10)%10,zi=((jdn+49)%12+12)%12;
+  return{gan:TG[gi],zhi:DZ[zi],wx:TGwx[gi],gi}
+}
+function hrPillar(dgi,h){
+  const zi=h===23?0:Math.floor((h+1)/2)%12,gi=(dgi%5*2+zi)%10;
+  return{gan:TG[gi],zhi:DZ[zi],wx:TGwx[gi]}
+}
+
+let baziData=null;
+
+function doCalc(){
+  const y=parseInt(document.getElementById('yr').value);
+  const m=parseInt(document.getElementById('mo').value);
+  const d=parseInt(document.getElementById('dy').value);
+  const h=parseInt(document.getElementById('hr').value);
+  const loc=document.getElementById('loc').value||'香港';
+  const sex=document.getElementById('sex').value||'未填寫';
+  if(!y||!m||!d||isNaN(h)){alert('請填晒所有出生資料喇！');return}
+  const yp=yrPillar(y),mp=moPillar(y,m,d),dp=dyPillar(y,m,d),hp=hrPillar(dp.gi,h);
+  const zodiac=ZO[((y-4)%12+12)%12];
+  const cols=[{l:'年柱',...yp},{l:'月柱',...mp},{l:'日柱',...dp},{l:'時柱',...hp}];
+  baziData={y,m,d,h,loc,sex,yp,mp,dp,hp,cols,zodiac};
+  const res=document.getElementById('res');
+  document.getElementById('pillars').innerHTML=cols.map(p=>`<div class="pillar"><div class="p-label">${p.l}</div><div class="p-gan">${p.gan}</div><div class="p-zhi">${p.zhi}</div><div class="p-wx">${p.wx}</div></div>`).join('');
+  res.classList.add('show');
+  for(let i=0;i<4;i++){
+    document.getElementById(`rd-${i}`).textContent='';
+    const b=document.getElementById(`gb-${i}`);
+    b.disabled=false;b.textContent='㩒呢度生成解讀 →';b.style.display='inline-block';
+  }
+  switchTab(0);
+  res.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function switchTab(i){
+  for(let j=0;j<4;j++){
+    document.getElementById(`tbtn-${j}`).classList.toggle('active',j===i);
+    document.getElementById(`tp-${j}`).classList.toggle('show',j===i);
+  }
+}
+
+async function genTab(idx){
+  if(!baziData)return;
+  const {y,m,d,h,loc,sex,yp,mp,dp,hp,cols,zodiac}=baziData;
+  const btn=document.getElementById(`gb-${idx}`),rd=document.getElementById(`rd-${idx}`);
+  btn.disabled=true;btn.textContent='分析緊...';
+  rd.innerHTML='<div class="dots">算緊<span>.</span><span>.</span><span>.</span></div>';
+  const baziStr=cols.map(p=>`${p.l}：${p.gan}${p.zhi}（${p.wx}）`).join('，');
+  const dayGan=dp.gan,dayWx=TGwx[TG.indexOf(dayGan)];
+  const wxCnt={木:0,火:0,土:0,金:0,水:0};
+  cols.forEach(p=>{wxCnt[TGwx[TG.indexOf(p.gan)]]++;wxCnt[DZwx[DZ.indexOf(p.zhi)]]++});
+  const wxStr=Object.entries(wxCnt).map(([k,v])=>`${k}×${v}`).join('、');
+  const prompts=[
+    `你係命理師，用輕鬆廣東話（香港用語，唔用大陸詞）解讀以下人嘅四柱八字：\n出生：${y}年${m}月${d}日，${loc}（${sex}）\n四柱：${baziStr}\n生肖：${zodiac}年生\n\n請解讀：\n1. 日干「${dayGan}」嘅性格特質（用生動比喻，2-3句）\n2. 命盤整體特色（2-3點，每點1-2句）\n3. 事業同財運方向\n4. 感情特質\n5. 一句金句總結\n\n全程廣東話口語，術語括號加人話解釋，400字內，直接講唔好廢話。`,
+    `你係命理師，用輕鬆廣東話分析以下人嘅四柱十神：\n四柱：${baziStr}\n日干（核心）：${dayGan}（${dayWx}）\n\n請：\n1. 識別命盤入面嘅十神同解釋各自係咩意思（用人話+比喻）\n2. 分析最主要嘅2-3個十神對此人嘅影響\n3. 十神組合帶嚟嘅優勢同潛在挑戰各一點\n4. 一句總結\n\n全程廣東話口語，術語即時加人話，唔超過450字。`,
+    `你係命理師，用輕鬆廣東話分析以下人嘅五行命理：\n四柱：${baziStr}\n五行統計（天干地支合共8字）：${wxStr}\n\n請：\n1. 分析五行比例，邊個旺邊個弱（1-2句）\n2. 旺嘅五行帶嚟咩性格特質同優勢\n3. 弱嘅五行要補：具體建議（顏色、方位、飲食、職業類型）\n4. 最適合此人嘅生活方式調整（2-3點）\n5. 一句總結\n\n全程廣東話口語，生動易明，唔超過450字。`,
+    `你係命理師，根據以下出生資料用輕鬆廣東話提供紫微斗數入門解讀：\n出生：${y}年${m}月${d}日，${loc}（${sex}）\n年支：${yp.zhi}（${zodiac}年生）\n四柱參考：${baziStr}\n\n請根據出生年月及時辰提供：\n1. 命宮大概星曜傾向同性格特色（2-3句）\n2. 財帛宮大概特色（1-2句）\n3. 事業宮大概特色（1-2句）\n4. 此生大運走勢概覽（1-2句）\n5. 一句總結，提醒精確排盤需專業命理師\n\n全程廣東話口語，術語加人話解釋，誠實標明係入門參考，唔超過400字。`
+  ];
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompts[idx]}]})});
+    const data=await resp.json();
+    rd.textContent=data.content?.map(i=>i.text||'').join('')||'唔好意思，今次算唔到，稍後再試？';
+    btn.style.display='none';
+  }catch(e){
+    rd.textContent='連線有啲問題，請稍後再試。';
+    btn.disabled=false;btn.textContent='重試 →';
+  }
+}
+</script>
+</body>
+</html>
