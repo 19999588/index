@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>算囉 Suen Lor</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#07070f;--gold:#c9a84c;--gold2:#e8c96a;--gold3:#f5dfa0;--cream:#f0ead8;--muted:rgba(240,234,216,0.55);--card:rgba(255,255,255,0.04);--border:rgba(201,168,76,0.2);--r:14px}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--cream);font-family:-apple-system,'PingFang HK','Helvetica Neue',sans-serif;line-height:1.7;overflow-x:hidden}
+canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+.bg-glow{position:fixed;top:30%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(ellipse,rgba(201,168,76,.055) 0%,transparent 70%);pointer-events:none;z-index:0}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 40px;height:60px;display:flex;justify-content:space-between;align-items:center;background:rgba(7,7,15,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-logo{font-size:1.15rem;font-weight:700;color:var(--gold2);letter-spacing:1px;cursor:pointer;flex-shrink:0}
+.nav-tabs{display:flex;gap:2px}
+.nav-tab{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--muted);font-size:.85rem;padding:8px 18px;cursor:pointer;font-family:inherit;transition:color .2s,border-color .2s;height:60px}
+.nav-tab:hover{color:var(--cream)}
+.nav-tab.active{color:var(--gold2);border-bottom-color:var(--gold);font-weight:600}
+.page{display:none;position:relative;z-index:1;min-height:100vh}
+.page.active{display:block}
+footer{text-align:center;padding:44px 24px;border-top:1px solid var(--border);color:var(--muted);font-size:.85rem}
+.f-logo{color:var(--gold);font-size:1.05rem;font-weight:700;margin-bottom:8px}
+.f-disc{margin-top:16px;font-size:.72rem;color:rgba(240,234,216,.32);max-width:600px;margin-left:auto;margin-right:auto;line-height:1.7}
+.section{padding:90px 40px;max-width:1100px;margin:0 auto}
+.section.narrow{max-width:800px}
+.section.top{padding-top:100px}
+.s-label{font-size:.75rem;color:var(--gold);letter-spacing:4px;text-transform:uppercase;margin-bottom:12px}
+.s-title{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;line-height:1.2;margin-bottom:10px}
+.s-title span{color:var(--gold2)}
+.s-desc{color:var(--muted);font-size:1rem;max-width:560px;margin-bottom:48px;line-height:1.75}
+.divider{width:50px;height:2px;background:linear-gradient(90deg,var(--gold),transparent);margin:14px 0 40px}
+.grid{display:grid;gap:18px}
+.g3{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.g2{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.card,.sys-card,.g-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);transition:border-color .3s,transform .3s}
+.card{padding:26px}.card:hover,.sys-card:hover{border-color:var(--gold);transform:translateY(-3px)}
+.g-card{padding:20px}.g-card:hover{border-color:var(--gold)}
+.c-icon{font-size:1.8rem;margin-bottom:14px}
+.c-tag{font-size:.7rem;color:var(--gold);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:6px}
+.c-title{font-size:1.2rem;font-weight:700;margin-bottom:10px}
+.c-text{color:var(--muted);font-size:.92rem;line-height:1.75}
+.c-text em{color:var(--gold2);font-style:normal;font-weight:600}
+.sys-card{padding:28px}
+.sys-emoji{font-size:2.2rem;margin-bottom:14px}
+.sys-name{font-size:1.15rem;font-weight:700;color:var(--gold2);margin-bottom:6px}
+.sys-tagline{font-size:.82rem;color:var(--gold);font-style:italic;margin-bottom:12px}
+.sys-desc{color:var(--muted);font-size:.9rem;line-height:1.75}
+.sys-for{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:.85rem;color:var(--cream)}
+.sys-for strong{color:var(--gold)}
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:80px 24px}
+.eyebrow{font-size:.78rem;color:var(--gold);letter-spacing:4px;text-transform:uppercase;margin-bottom:20px;opacity:.8}
+.hero-title{font-size:clamp(4rem,11vw,8rem);font-weight:800;letter-spacing:-2px;line-height:1;background:linear-gradient(140deg,var(--gold) 0%,var(--gold2) 50%,var(--gold3) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
+.hero-sub{font-size:clamp(.9rem,2vw,1.15rem);letter-spacing:4px;color:var(--muted);margin-bottom:24px}
+.hero-tag{font-size:clamp(1rem,2.5vw,1.35rem);color:var(--cream);max-width:560px;line-height:1.7;margin-bottom:44px}
+.hero-tag em{color:var(--gold2);font-style:normal;font-weight:600}
+.btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07070f;font-weight:700;font-size:1rem;padding:14px 44px;border:none;border-radius:50px;cursor:pointer;letter-spacing:.5px;transition:transform .25s,box-shadow .25s;font-family:inherit}
+.btn:hover{transform:translateY(-3px);box-shadow:0 10px 35px rgba(201,168,76,.35)}
+.calc-wrap{background:rgba(201,168,76,.04);border:1px solid var(--border);border-radius:20px;padding:36px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
+.fg{display:flex;flex-direction:column;gap:7px}
+label{font-size:.8rem;color:var(--gold);letter-spacing:1px}
+input,select{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--cream);font-size:.92rem;outline:none;transition:border-color .2s;font-family:inherit;width:100%}
+input::placeholder{color:rgba(240,234,216,.3)}
+input:focus,select:focus{border-color:var(--gold)}
+select option{background:#1a1a2e}
+.result{display:none;margin-top:26px;background:rgba(201,168,76,.05);border:1px solid var(--border);border-radius:var(--r);padding:26px}
+.result.show{display:block}
+.pillars{display:flex;gap:10px;justify-content:center;margin:18px 0;flex-wrap:wrap}
+.pillar{text-align:center;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:14px 18px;min-width:68px}
+.p-label{font-size:.65rem;color:var(--gold);letter-spacing:2px;margin-bottom:6px}
+.p-gan{font-size:1.7rem;font-weight:700;color:var(--gold2);line-height:1}
+.p-zhi{font-size:1.7rem;font-weight:700;color:var(--cream);line-height:1}
+.p-wx{font-size:.65rem;color:var(--muted);margin-top:4px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 0;padding-top:20px;border-top:1px solid var(--border)}
+.tab-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:10px 16px;color:var(--muted);font-size:.82rem;cursor:pointer;transition:all .2s;font-family:inherit}
+.tab-btn:hover{border-color:var(--gold);color:var(--cream)}
+.tab-btn.active{background:rgba(201,168,76,.12);border-color:var(--gold);color:var(--gold2);font-weight:600}
+.tab-panel{display:none;margin-top:18px}
+.tab-panel.show{display:block}
+.tab-desc{font-size:.82rem;color:var(--muted);margin-bottom:16px;line-height:1.6;padding:12px 14px;background:rgba(255,255,255,.03);border-radius:8px;border-left:2px solid var(--gold)}
+.gen-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#07070f;font-weight:700;font-size:.88rem;padding:10px 26px;border:none;border-radius:50px;cursor:pointer;letter-spacing:.5px;transition:transform .2s,box-shadow .2s;margin-bottom:16px;font-family:inherit}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(201,168,76,.3)}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.reading{color:var(--cream);line-height:1.9;font-size:.95rem}
+.disclaimer{font-size:.72rem;color:var(--muted);margin-top:22px;line-height:1.6;border-top:1px solid var(--border);padding-top:14px}
+.g-term{font-size:1.15rem;font-weight:700;color:var(--gold2);margin-bottom:3px}
+.g-arrow{font-size:.72rem;color:var(--muted);margin-bottom:8px}
+.g-meaning{color:var(--cream);font-size:.9rem;line-height:1.7}
+.gtag{display:inline-block;margin-top:9px;font-size:.7rem;background:rgba(201,168,76,.12);color:var(--gold);padding:3px 10px;border-radius:20px}
+@keyframes bop{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-7px)}}
+.dots span{display:inline-block;animation:bop 1.1s infinite;color:var(--gold);font-size:1.4rem}
+.dots span:nth-child(2){animation-delay:.18s}.dots span:nth-child(3){animation-delay:.36s}
+@media(max-width:700px){
+  nav{padding:0 16px}.nav-tab{font-size:.75rem;padding:6px 10px}
+  .section{padding:80px 18px}.form-grid{grid-template-columns:1fr}
+  .g3,.g2{grid-template-columns:1fr}.tabs{gap:6px}.tab-btn{font-size:.76rem;padding:8px 11px}
+}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas><div class="bg-glow"></div>
+<nav>
+  <div class="nav-logo" onclick="showPage('home')">算囉 ✦</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-page="home" onclick="showPage('home')">主頁</button>
+    <button class="nav-tab" data-page="calc" onclick="showPage('calc')">互動算命區</button>
+    <button class="nav-tab" data-page="glossary" onclick="showPage('glossary')">詞彙解碼</button>
+  </div>
+</nav>
+
+<!-- 主頁 -->
+<div id="page-home" class="page active">
+  <section id="hero">
+    <p class="eyebrow">✦ 命理 · 唔玄 · 易明 ✦</p>
+    <h1 class="hero-title">算囉</h1>
+    <p class="hero-sub">Suen Lor</p>
+    <p class="hero-tag">想知自己條命係點，<br>但又成日<em>比啲 terms 考起</em>？<br><em>由我哋講俾你聽！</em></p>
+    <button class="btn" onclick="showPage('calc')">算下先 →</button>
+  </section>
+  <div class="section">
+    <p class="s-label">✦ 命理係咩嚟</p>
+    <h2 class="s-title">係一套<span>人生分析系統</span></h2>
+    <div class="divider"></div>
+    <p class="s-desc">古人用幾千年觀察總結出嚟嘅 pattern analysis。你出生嗰刻嘅年月日時，對應住宇宙能量嘅佈局 — 我哋用現代語言拆解俾你聽。</p>
+    <div class="grid g3">
+      <div class="card"><div class="c-icon">🌳🔥🌍⚙️💧</div><div class="c-tag">基礎概念</div><div class="c-title">五行 · Five Elements</div><div class="c-text">木火土金水，唔係話你係「水人」咁簡單。想像呢五種能量<em>互相制衡</em>，就好似個 group chat 入面有人帶頭、有人做和事佬、有人搞氣氛 — 是但冇咗個唔得，但比例唔同就係唔同性格。</div></div>
+      <div class="card"><div class="c-icon">☀️</div><div class="c-tag">你嘅核心設定</div><div class="c-title">天干 · Day Master</div><div class="c-text">十個天干（甲乙丙丁戊己庚辛壬癸），你嘅<em>日干</em>就係你呢個人嘅根本。就好似 MBTI 咁，係你最底層嘅個性底色，後天改唔走嗰種。</div></div>
+      <div class="card"><div class="c-icon">🐉</div><div class="c-tag">你識嘅生肖</div><div class="c-title">地支 · 唔止係生肖</div><div class="c-text">十二地支唔止係生肖，仲包含<em>月份、時辰、方位</em>嘅資訊。你嘅生肖只係年支，但你仲有月支、日支、時支 — 合埋先係完整嘅你，唔好淨係睇生肖。</div></div>
+      <div class="card"><div class="c-icon">🏛️</div><div class="c-tag">四個維度</div><div class="c-title">四柱八字 · 你嘅 Profile</div><div class="c-text">年柱月柱日柱時柱，每柱一個天干一個地支，合共<em>八個字</em>。四個 column 分別代表出身背景、性格潛力、真實自我、隱藏面。</div></div>
+      <div class="card"><div class="c-icon">👑</div><div class="c-tag">你同世界嘅關係</div><div class="c-title">十神 · 係關係，唔係神</div><div class="c-text">食神、傷官、正財、偏財、正官、七殺⋯ 唔係鬼神，係描述你<em>同其他五行嘅關係模式</em>。例如「食神」就係你享受生活嘅能力、創意指數同口福。</div></div>
+      <div class="card"><div class="c-icon">🧭</div><div class="c-tag">人生 Timeline</div><div class="c-title">大運流年 · 你嘅 Chapter</div><div class="c-text">八字係「出廠設定」，大運係每<em>十年一個 chapter</em>，流年係每年嘅 update patch。唔係命中注定唔會變，係有個大概劇本，但你有 agency 去演繹。</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <p class="s-label">✦ 各命理系統</p>
+    <h2 class="s-title">點解有<span>咁多種</span>命理？</h2>
+    <div class="divider"></div>
+    <p class="s-desc">唔同系統係唔同角度睇同一個你，就好似 Instagram、LinkedIn、Tinder 都係你，但側重點唔同。</p>
+    <div class="grid g3">
+      <div class="sys-card"><div class="sys-emoji">📅</div><div class="sys-name">四柱八字</div><div class="sys-tagline">"你係點樣嘅人"</div><div class="sys-desc">用出生年月日時排出四柱八字。重點分析你嘅性格天賦、財運感情、事業走向，仲可以算大運流年係咩 chapter。係最普及嘅入門系統。</div><div class="sys-for"><strong>適合：</strong>想了解自己性格同大方向，想搵個 life coach 式分析。</div></div>
+      <div class="sys-card"><div class="sys-emoji">⭐</div><div class="sys-name">紫微斗數</div><div class="sys-tagline">"你嘅人生劇本"</div><div class="sys-desc">十二個宮位（命宮、財帛宮、感情宮⋯）加上 144 粒星曜排列，係命理界最複雜但最精準嘅系統之一。每個宮位就係你人生唔同範疇嘅故事。</div><div class="sys-for"><strong>適合：</strong>想知特定範疇（感情/事業/健康）嘅詳細分析，接受複雜度高。</div></div>
+      <div class="sys-card"><div class="sys-emoji">⚖️</div><div class="sys-name">五行命理</div><div class="sys-tagline">"你缺乜補乜"</div><div class="sys-desc">由八字延伸，重點分析你命盤入面五行比例係咪平衡。缺水？補藍色、北方。火太旺？避衝動、補靜。係最 practical 嘅日常應用系統。</div><div class="sys-for"><strong>適合：</strong>想知日常生活點配合自己命格，例如顏色、方位、職業選擇。</div></div>
+    </div>
+  </div>
+  <footer>
+    <div class="f-logo">算囉 Suen Lor ✦</div><p>淺白解讀 · 娛樂參考用途</p>
+    <p style="margin-top:6px;font-size:.75rem">Made with ✦ for the curious ones</p>
+    <p class="f-disc">本網站所有內容純屬娛樂用途，不構成任何專業意見（包括但不限於財務、法律、醫療或心理建議）。所有解讀結果不保證準確性，請勿以此作人生決定之依據。本站對任何因使用本網站內容而引致之損失或後果概不負責。</p>
+    <p class="f-disc" style="margin-top:8px">本解讀由規則引擎自動生成，內容或存在誤差。如需準確及最新資訊，請向專業人士查詢。</p>
+  </footer>
+</div>
+
+<!-- 互動算命區 -->
+<div id="page-calc" class="page">
+  <div class="section narrow top">
+    <p class="s-label">✦ 互動算命區</p>
+    <h2 class="s-title">算下你嘅<span>命盤</span></h2>
+    <div class="divider"></div>
+    <p class="s-desc">輸入出生資料，排出四柱八字，再揀你想睇嘅命理系統解讀。</p>
+    <div class="calc-wrap">
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:16px">📅 請輸入<strong style="color:var(--gold)">新曆（公曆／陽曆）</strong>出生資料</p>
+      <div class="form-grid">
+        <div class="fg"><label>出生年份</label><input type="number" id="yr" placeholder="例：2000" min="1900" max="2025"></div>
+        <div class="fg"><label>出生月份</label>
+          <select id="mo"><option value="">選擇月份</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
+        </div>
+        <div class="fg"><label>出生日期</label><input type="number" id="dy" placeholder="例：15" min="1" max="31"></div>
+        <div class="fg"><label>出生時辰</label>
+          <select id="hr"><option value="">選擇時辰</option><option value="23">子時 23–01</option><option value="1">丑時 01–03</option><option value="3">寅時 03–05</option><option value="5">卯時 05–07</option><option value="7">辰時 07–09</option><option value="9">巳時 09–11</option><option value="11">午時 11–13</option><option value="13">未時 13–15</option><option value="15">申時 15–17</option><option value="17">酉時 17–19</option><option value="19">戌時 19–21</option><option value="21">亥時 21–23</option></select>
+        </div>
+        <div class="fg"><label>性別</label>
+          <select id="sex"><option value="">選擇性別</option><option value="男">男</option><option value="女">女</option></select>
+        </div>
+        <div class="fg"><label>出生地點</label><input type="text" id="loc" placeholder="例：香港、台北⋯"></div>
+        <div class="fg" style="grid-column:1/-1"><label>農曆出生月份 <span style="color:rgba(240,234,216,.35);font-weight:400;letter-spacing:0">（選填·紫微斗數用）</span></label>
+          <select id="lm"><option value="">自動估算（陽曆月 −1）</option><option value="1">正月</option><option value="2">二月</option><option value="3">三月</option><option value="4">四月</option><option value="5">五月</option><option value="6">六月</option><option value="7">七月</option><option value="8">八月</option><option value="9">九月</option><option value="10">十月</option><option value="11">十一月</option><option value="12">十二月</option></select>
+        </div>
+        <div class="fg" style="grid-column:1/-1"><label>農曆出生日 <span style="color:rgba(240,234,216,.35);font-weight:400;letter-spacing:0">（選填·紫微斗數用，建議填寫）</span></label>
+          <input type="number" id="ld" placeholder="例：17（農曆十七日）" min="1" max="30">
+        </div>
+      </div>
+      <button class="btn" onclick="doCalc()" style="width:100%;text-align:center">✦ 排出八字</button>
+      <div class="result" id="res">
+        <p style="font-size:.72rem;color:var(--gold);letter-spacing:3px;margin-bottom:4px">YOUR 四柱八字</p>
+        <div class="pillars" id="pillars"></div>
+        <div class="tabs">
+          <button class="tab-btn active" id="tbtn-0" onclick="switchTab(0)">☯ 四柱八字</button>
+          <button class="tab-btn" id="tbtn-1" onclick="switchTab(1)">👑 十神分析</button>
+          <button class="tab-btn" id="tbtn-2" onclick="switchTab(2)">⚖️ 五行命理</button>
+          <button class="tab-btn" id="tbtn-3" onclick="switchTab(3)">⭐ 紫微斗數</button>
+        </div>
+        <div class="tab-panel show" id="tp-0"><p class="tab-desc">根據你嘅四柱八字，分析性格特質、事業財運、感情走向。</p><button class="gen-btn" id="gb-0" onclick="genTab(0)">㩒呢度生成解讀 →</button><div class="reading" id="rd-0"></div></div>
+        <div class="tab-panel" id="tp-1"><p class="tab-desc">十神係你日干同其他五行嘅關係 — 解讀你同世界嘅互動模式、優勢同潛在挑戰。</p><button class="gen-btn" id="gb-1" onclick="genTab(1)">㩒呢度生成解讀 →</button><div class="reading" id="rd-1"></div></div>
+        <div class="tab-panel" id="tp-2"><p class="tab-desc">分析你八字入面五行嘅強弱比例，睇下缺乜補乜，提供實際生活建議。</p><button class="gen-btn" id="gb-2" onclick="genTab(2)">㩒呢度生成解讀 →</button><div class="reading" id="rd-2"></div></div>
+        <div class="tab-panel" id="tp-3"><p class="tab-desc">紫微斗數以命宮主星為核心，分析你嘅命格、財帛、事業宮特色。共有十四顆主星，分為北斗星系（紫微、天機、太陽、武曲、天同、廉貞、天府）和南斗星系（太陰、貪狼、巨門、天相、天梁、七殺、破軍）。（入門參考，精確排盤需專業命理師）</p><button class="gen-btn" id="gb-3" onclick="genTab(3)">㩒呢度生成解讀 →</button><div class="reading" id="rd-3"></div></div>
+        <p class="disclaimer">⚠️ 此為規則引擎本地運算解讀，純屬娛樂用途，不構成任何專業意見。所有解讀結果不保證準確性，請勿以此作人生決定之依據。本站對任何因使用本網站內容而引致之損失或後果概不負責。</p>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="f-logo">算囉 Suen Lor ✦</div><p>淺白解讀 · 娛樂參考用途</p>
+    <p style="margin-top:6px;font-size:.75rem">Made with ✦ for the curious ones</p>
+    <p class="f-disc">本網站所有內容純屬娛樂用途，不構成任何專業意見（包括但不限於財務、法律、醫療或心理建議）。所有解讀結果不保證準確性，請勿以此作人生決定之依據。本站對任何因使用本網站內容而引致之損失或後果概不負責。</p>
+    <p class="f-disc" style="margin-top:8px">本解讀由規則引擎自動生成，內容或存在誤差。如需準確及最新資訊，請向專業人士查詢。</p>
+  </footer>
+</div>
+
+<!-- 詞彙解碼 -->
+<div id="page-glossary" class="page">
+  <div class="section top">
+    <p class="s-label">✦ 詞彙解碼</p>
+    <h2 class="s-title">命理<span>人話翻譯</span></h2>
+    <div class="divider"></div>
+    <p class="s-desc">成日聽到啲terms但唔知係咩嚟？直接翻譯俾你聽。</p>
+    <div class="grid g2">
+      <div class="g-card"><div class="g-term">食神</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">你係個享樂主義者。識食識玩、有創意、品味高。通常好人緣，唔會太計較。</div><span class="gtag">性格</span></div>
+      <div class="g-card"><div class="g-term">傷官</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">創意反骨仔。極有才華，但超唔鍾意規矩、唔易服人管。做 freelancer 或搞自己嘢嘅多。</div><span class="gtag">性格</span></div>
+      <div class="g-card"><div class="g-term">七殺</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">聽落好勁，其實係壓力同挑戰嘅象徵。有七殺嘅人執行力強，但人生波折多，要靠韌性過關。</div><span class="gtag">運勢</span></div>
+      <div class="g-card"><div class="g-term">正官</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">守規矩嘅人。重視名譽、責任感強，天生適合做管理層。有時會太在意別人眼光。</div><span class="gtag">性格</span></div>
+      <div class="g-card"><div class="g-term">桃花</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">唔係話你有外遇，係指你有 social charm，人緣好、魅力足。桃花旺可以係 networking 天才。</div><span class="gtag">人緣</span></div>
+      <div class="g-card"><div class="g-term">驛馬</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">停唔住嘅人。喜歡移動、出行、變化。適合出差多、移民、或者需要常常走動嘅工作。</div><span class="gtag">運勢</span></div>
+      <div class="g-card"><div class="g-term">印星</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">靠山、學習力、媽媽緣。印星強嘅人好鍾意學嘢，或者有人罩住。讀書運、貴人運都係呢度睇。</div><span class="gtag">關係</span></div>
+      <div class="g-card"><div class="g-term">空亡</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">唔係「白費」，係指某些方向力量較弱，要靠自己努力補。空亡嘅宮位唔係廢，係要加倍用心。</div><span class="gtag">注意</span></div>
+      <div class="g-card"><div class="g-term">偏財</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">橫財、投機財、老豆緣。偏財旺嘅人有賺快錢嘅潛質，但要小心控制，唔好賭上癮。</div><span class="gtag">財運</span></div>
+      <div class="g-card"><div class="g-term">比劫</div><div class="g-arrow">術語 → 人話</div><div class="g-meaning">同類競爭者，有時係兄弟姐妹、朋友。比劫旺嘅人獨立心強，但有時係財運嘅阻力——同人爭。</div><span class="gtag">關係</span></div>
+    </div>
+  </div>
+  <footer>
+    <div class="f-logo">算囉 Suen Lor ✦</div><p>淺白解讀 · 娛樂參考用途</p>
+    <p style="margin-top:6px;font-size:.75rem">Made with ✦ for the curious ones</p>
+    <p class="f-disc">本網站所有內容純屬娛樂用途，不構成任何專業意見（包括但不限於財務、法律、醫療或心理建議）。所有解讀結果不保證準確性，請勿以此作人生決定之依據。本站對任何因使用本網站內容而引致之損失或後果概不負責。</p>
+    <p class="f-disc" style="margin-top:8px">本解讀由規則引擎自動生成，內容或存在誤差。如需準確及最新資訊，請向專業人士查詢。</p>
+  </footer>
+</div>
+
+<script>
+// ── STARS ──
+const cvs=document.getElementById('c'),cx=cvs.getContext('2d');let stars=[];
+function rsz(){cvs.width=innerWidth;cvs.height=innerHeight}
+function init(){stars=Array.from({length:160},()=>({x:Math.random()*cvs.width,y:Math.random()*cvs.height,r:Math.random()*1.4+.3,t:Math.random()*Math.PI*2,spd:Math.random()*.004+.002}))}
+function draw(){cx.clearRect(0,0,cvs.width,cvs.height);stars.forEach(s=>{s.t+=s.spd;const a=.25+.55*Math.abs(Math.sin(s.t));cx.beginPath();cx.arc(s.x,s.y,s.r,0,Math.PI*2);cx.fillStyle=`rgba(201,168,76,${a})`;cx.fill()});requestAnimationFrame(draw)}
+rsz();init();draw();window.addEventListener('resize',()=>{rsz();init()});
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelector(`.nav-tab[data-page="${id}"]`).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── CORE DATA ──
+const TG=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const DZ=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const TGwx=['木','木','火','火','土','土','金','金','水','水'];
+const DZwx=['水','土','木','木','土','火','火','土','金','金','土','水'];
+const TGpol=[0,1,0,1,0,1,0,1,0,1];
+const ZO=['鼠','牛','虎','兔','龍','蛇','馬','羊','猴','雞','狗','豬'];
+const HS={0:[8],1:[5,9,7],2:[0,2,4],3:[1],4:[4,1,9],5:[2,6,4],6:[3,5],7:[5,3,1],8:[6,8,4],9:[7],10:[4,7,3],11:[8,0]};
+const WXN=['木','火','土','金','水'],WXI={木:0,火:1,土:2,金:3,水:4};
+const GEN_I=[1,2,3,4,0],CTL_I=[2,3,4,0,1],GENBY_I=[4,0,1,2,3],CTLBY_I=[3,4,0,1,2];
+const NAYIN_WX=[3,1,0,2,3,1,4,2,3,0,4,2,1,0,4,3,1,0,2,3,1,4,2,3,0,4,2,1,0,4];
+const JU_LABEL=['木三局','火六局','土五局','金四局','水二局'];
+const JU_NUM=[3,6,5,4,2];
+const MINGZHU_LP=['貪狼','巨門','祿存','文曲','廉貞','武曲','破軍','武曲','廉貞','文曲','祿存','巨門'];
+const SHENZHU_YR=['火星','天相','天梁','天同','文昌','天機','火星','天相','天梁','天同','文昌','天機'];
+// 五行局元素主支: 木=卯(3),火=午(6),土=未(7),金=酉(9),水=亥(11)
+// 紫微起點=元素對宮(+6): 火→子(0),金→卯(3),土→丑(1),木→酉(9),水→巳(5)
+const WX_MAIN_BRANCH=[3,6,0,9,3]; // 五行局起點: 木→酉(暫定), 火→子✓, 土→午✓, 金→卯✓, 水→酉✓
+
+// ── FOUR PILLARS ──
+function calculateYearPillar(y){const gi=((y-4)%10+10)%10,zi=((y-4)%12+12)%12;return{gan:TG[gi],zhi:DZ[zi],wx:TGwx[gi],gi,zi};}
+function jqd(yr,mo){const Y=yr%100,C20=[0,5.4055,3.87,5.63,4.81,5.52,5.678,6.11,7.5,7.646,7.9,7.18,6.9],C21=[0,5.4055,4.02,5.59,4.748,5.5095,5.678,6.3811,7.5,7.646,7.9,7.18,6.9];return Math.floor(Y*0.2422+(yr>=2000?C21:C20)[mo])-Math.floor(Y/4);}
+function calculateMonthPillar(y,m,d){
+  const jq=jqd(y,m),bY=(m<2||(m===2&&d<jqd(y,2)))?y-1:y;
+  const zi=d>=jq?m%12:(m-1+12)%12,yg=((bY-4)%10+10)%10;
+  // 子(0)→12, 丑(1)→13: 五虎遁月干在子丑月需加12才能正確循環
+  // 驗證: 丙年子月 zi=0,ziAdj=12,gi=(4+12)%10=6→庚 → 庚子 ✓
+  const ziAdj=zi<2?zi+12:zi;
+  const gi=((yg%5)*2+ziAdj)%10;
+  return{gan:TG[gi],zhi:DZ[zi],wx:TGwx[gi],gi,zi};
+}
+function calculateDayPillar(y,m,d){const a=Math.floor((14-m)/12),yy=y+4800-a,mm=m+12*a-3,jdn=d+Math.floor((153*mm+2)/5)+365*yy+Math.floor(yy/4)-Math.floor(yy/100)+Math.floor(yy/400)-32045,gi=((jdn+49)%10+10)%10,zi=((jdn+49)%12+12)%12;return{gan:TG[gi],zhi:DZ[zi],wx:TGwx[gi],gi,zi};}
+function calculateHourPillar(dgi,h){const zi=h===23?0:Math.floor((h+1)/2)%12,gi=(dgi%5*2+zi)%10;return{gan:TG[gi],zhi:DZ[zi],wx:TGwx[gi],gi,zi};}
+
+// ── FIVE ELEMENTS ──
+function calculateFiveElements(pillars){const sc={木:0,火:0,土:0,金:0,水:0};pillars.forEach(p=>{sc[TGwx[p.gi]]+=2;sc[DZwx[p.zi]]+=1;const h=HS[p.zi];if(h&&h.length>0)sc[TGwx[h[0]]]+=0.5;});return sc;}
+
+// ── TEN GODS ──
+function getTenGod(dmGi,tGi){const dw=WXI[TGwx[dmGi]],tw=WXI[TGwx[tGi]],sp=TGpol[dmGi]===TGpol[tGi];if(tw===dw)return sp?'比肩':'劫財';if(GEN_I[dw]===tw)return sp?'食神':'傷官';if(CTL_I[dw]===tw)return sp?'偏財':'正財';if(CTLBY_I[dw]===tw)return sp?'七殺':'正官';if(GENBY_I[dw]===tw)return sp?'偏印':'正印';return'—';}
+function calculateTenGods(dmGi,pillars){const cnt={},add=g=>{if(g&&g!=='—')cnt[g]=(cnt[g]||0)+1};[0,1,3].forEach(i=>add(getTenGod(dmGi,pillars[i].gi)));pillars.forEach(p=>{const h=HS[p.zi];if(h&&h.length>0)add(getTenGod(dmGi,h[0]));});const cats={'比劫':(cnt['比肩']||0)+(cnt['劫財']||0),'食傷':(cnt['食神']||0)+(cnt['傷官']||0),'財星':(cnt['正財']||0)+(cnt['偏財']||0),'官殺':(cnt['正官']||0)+(cnt['七殺']||0),'印星':(cnt['正印']||0)+(cnt['偏印']||0)};return{cats,sorted:Object.entries(cats).sort((a,b)=>b[1]-a[1]),detail:cnt};}
+
+// ── DAY MASTER STRENGTH ──
+function evaluateDayMasterStrength(dmGi,mp,pillars){const dw=WXI[TGwx[dmGi]],mw=WXI[DZwx[mp.zi]];let sc=0;if(mw===dw)sc+=5;else if(GENBY_I[dw]===mw)sc+=3;else if(CTLBY_I[dw]===mw)sc-=3;else if(CTL_I[dw]===mw)sc-=1;else if(GEN_I[dw]===mw)sc-=1;[0,1,3].forEach(i=>{const w=WXI[TGwx[pillars[i].gi]];if(w===dw)sc+=2;else if(GENBY_I[dw]===w)sc+=1;else if(CTLBY_I[dw]===w)sc-=1;else if(GEN_I[dw]===w)sc-=0.5;});pillars.forEach(p=>{const w=WXI[DZwx[p.zi]];if(w===dw)sc+=1;else if(GENBY_I[dw]===w)sc+=0.5;else if(CTLBY_I[dw]===w)sc-=0.5;});if(sc>=8)return{label:'身強',sc,key:'str'};if(sc>=3)return{label:'中和偏強',sc,key:'str'};if(sc>=-2)return{label:'中和',sc,key:'bal'};if(sc>=-5)return{label:'中和偏弱',sc,key:'wk'};return{label:'身弱',sc,key:'wk'};}
+
+// ── ZI WEI (ALL BUGS FIXED) ──
+function calcWuxingJu(gi,zi){const wx=NAYIN_WX[Math.floor(((6*gi-5*zi+600)%60)/2)];return{wxName:WXN[wx],juLabel:JU_LABEL[wx],juNum:JU_NUM[wx],wxIdx:wx};}
+// 驗證: 火六局day17→r=5,start=0,zwPos=4=辰✓  金四局day17→r=1,start=3,zwPos=3=卯✓
+function calcZiWeiPos(lunarDay,juNum,wxIdx){const start=(WX_MAIN_BRANCH[wxIdx]+6)%12,r=((lunarDay-1)%juNum)+1;return(start+r-1+12)%12;}
+function calcPalaceStem(yrGi,branch){return(((yrGi%5)*2+2)+(branch-2+12)%12)%10;}
+function calcAllStars(zwPos){
+  const s={},add=(br,name)=>{(s[br]=s[br]||[]).push(name);};
+  // 天府: 紫微+天府=4(mod12) — 驗證: zwPos=4→tf=0✓  zwPos=3→tf=1✓
+  const tf=(4-zwPos+12)%12;
+  add(zwPos,'紫微');add((zwPos-1+12)%12,'天機');add((zwPos-3+12)%12,'太陽');
+  add((zwPos-4+12)%12,'武曲');add((zwPos-5+12)%12,'天同');add((zwPos+4)%12,'廉貞');
+  add(tf,'天府');add((tf+1)%12,'太陰');add((tf+2)%12,'貪狼');add((tf+3)%12,'巨門');
+  add((tf+4)%12,'天相');add((tf+5)%12,'天梁');add((tf+6)%12,'七殺');add((tf+10)%12,'破軍');
+  return s;
+}
+function calculateZiWeiStructure(y,m,d,h,yp,lmInput,ldInput){
+  const hb=h===23?0:Math.floor((h+1)/2)%12;
+  const lm=lmInput?parseInt(lmInput):(m===1?12:m-1);
+  const ld=ldInput?parseInt(ldInput):d;
+  const lmApprox=!lmInput,ldApprox=!ldInput;
+  const lp=((2+lm-1-hb)%12+12)%12;
+  const PAL=['命宮','兄弟','夫妻','子女','財帛','疾厄','遷移','交友','官祿','田宅','福德','父母'];
+  const palaces=PAL.map((name,i)=>{const br=(lp-i+120)%12,gs=calcPalaceStem(yp.gi,br);return{name,branch:br,branchName:DZ[br],stemName:TG[gs],gs,gz:TG[gs]+DZ[br]};});
+  const ming=palaces[0],ju=calcWuxingJu(ming.gs,ming.branch);
+  const zwPos=calcZiWeiPos(ld,ju.juNum,ju.wxIdx);
+  const pStars=calcAllStars(zwPos);
+  return{lp,palaces,ju,mingzhu:MINGZHU_LP[lp],shenzhu:SHENZHU_YR[yp.zi],lmUsed:lm,ldUsed:ld,lmApprox,ldApprox,pStars,zwPos};
+}
+
+// ── CONDITION FLAGS ──
+function buildConditionFlags(fe,tg,dms){const wxArr=WXN.map(w=>fe[w]||0),maxWx=WXN[wxArr.indexOf(Math.max(...wxArr))],minWx=WXN[wxArr.indexOf(Math.min(...wxArr))];return{maxWx,minWx,isStrong:dms.key==='str',isWeak:dms.key==='wk',isBalanced:dms.key==='bal',top1TG:tg.sorted[0][0],top2TG:tg.sorted[1][0],hasWealth:tg.cats['財星']>=2,hasAuthority:tg.cats['官殺']>=2,hasCreativity:tg.cats['食傷']>=2,hasResource:tg.cats['印星']>=2,hasPeers:tg.cats['比劫']>=2};}
+
+// ── TEMPLATES ──
+const DMP={
+  甲:{core:'甲木係陽木，就好似一棵挺立嘅大樹。你天生有方向感，做事唔鍾意拖拉，係個進取、有原則嘅人，目標清晰，一旦認定方向就唔易回頭。',str:'身強嘅甲木精力充沛，領導氣場強，但要學識彎腰——固執有時係你最大嘅阻力，彈性才能走得更遠。',wk:'身弱嘅甲木需要外界支持，建議先儲備資源再出擊，善用貴人嘅力量，唔好單打獨鬥。',bal:'中和嘅甲木剛柔並濟，能進能退係你嘅優勢，保持彈性就係你最大嘅武器。',career:'你適合帶領型工作——管理、創業、需要開創精神嘅行業都係你嘅舞台。長遠眼光係你嘅優勢，但記得亦要顧及細節。',rel:'感情上主動積極，係關係入面嘅領導者。重視承諾，但有時過於堅持己見，要學識聆聽另一半嘅需要。'},
+  乙:{core:'乙木係陰木，就好似一條柔韌嘅藤蔓。你外表溫和，骨子裡堅持，有策略、有耐性，識彎曲、識適應，韌性驚人——唔論環境幾差都能找到出路。',str:'身強嘅乙木適應力超強，多面發展。要注意唔好為咗順勢而迷失方向，清楚自己想要咩先係關鍵。',wk:'身弱嘅乙木內心較敏感，建議多接觸大自然，保持身心平衡，唔好讓外界壓力輕易動搖你。',bal:'中和嘅乙木靈活自如，能屈能伸係你嘅天賦，善用呢個特質係你最大本錢。',career:'你適合需要溝通、協調、創意嘅工作。藝術、公關、教育、諮詢都係好方向，你嘅軟技巧係最大競爭優勢。',rel:'感情細膩，善解人意係你嘅招牌。你記得每一個細節，另一半感受得到你嘅用心。'},
+  丙:{core:'丙火係陽火，就好似太陽咁。你天生熱情豪爽，自信好勝，善言健談，有感染力——你入到一個場，氣氛自然活起嚟。你慷慨大方，係天生嘅 social butterfly。要注意嘅係：丙火情緒較易波動，衝動易怒係需要管理嘅側面，缺乏沉著有時令好事走樣——學識先冷靜後表達，係你提升影響力嘅關鍵。',str:'身強嘅丙火光芒四射。要注意火旺容易性急雄辯，衝口而出係你嘅慣性，但先聽後說係你建立更深影響力嘅進階功課。適當保留能量，先能持久發光。',wk:'身弱嘅丙火光芒稍收，但內在仍有溫暖。建議多社交、多曬太陽，主動補充正能量，唔好讓外界消耗蓋過你嘅光芒。',bal:'中和嘅丙火熱情而不燥，有感染力之餘亦識得收放，係你嘅核心魅力所在。',career:'你適合需要表達、展示、啟發他人嘅工作。演藝、教育、銷售、品牌、活動策劃都係你嘅天下。你嘅個人魅力同感染力係最大嘅職場資本。',rel:'你愛得熱烈，表達方式直接，令另一半感覺被重視。但注意唔好熱情過頭令對方喘不過氣，學識給彼此空間係你嘅感情長久之道。'},
+  丁:{core:'丁火係陰火，就好似燭火一樣。你敦厚樸實，重情重義，一旦認定嘅事情唔輕易放棄。你有深度、有品味，但要注意有時嘅任性——開頭熱情十足，持久力係你要刻意培養嘅功課。',str:'身強嘅丁火意志堅定，自尊心強，明分寸知進退。但要注意火旺容易性急雄辯，先聽後講係你提升人際關係最有效嘅一步。',wk:'身弱嘅丁火需要外界能量補充，建議多親近有正能量嘅人，避免長期獨處消耗自己。',bal:'中和嘅丁火質量均衡，既有溫度又有深度，係你人際關係入面最吸引人嘅地方。',career:'你適合精細、需要專注嘅工作——研究、設計、手工藝，或任何需要細心同品味嘅領域。勤奮好學係你嘅天性，但要注意設立清晰目標，防止中途失去動力。',rel:'你表達愛係以行動為主，默默付出，重情義、唔輕易背棄承諾係你嘅最大優點。另一半可能唔知你有幾在乎，所以要多表達自己嘅感受。'},
+  戊:{core:'戊土係陽土，就好似一座大山。你積極進取，幹一行便投入一行——一旦熱衷某件事，那份專注令旁人佩服。承受力強，唔容易被外界動搖，係個天然嘅穩定器，身邊人有你在就放心咗一半。',str:'身強嘅戊土穩如泰山，意志力驚人，在逆境中仍能堅持完成目標。但要注意好勝心太強容易令人難以接近，適時展示柔軟係進階智慧。',wk:'身弱嘅戊土骨子裡仍有強烈嘅韌性——逆境往往才係你真正發揮嘅舞台。建議建立穩定嘅生活節奏，蓄積能量再出發。',bal:'中和嘅戊土穩中有變，既有底氣又有靈活度，係你處理任何挑戰嘅最強後盾。',career:'你適合需要執行力、穩定性同長遠規劃嘅工作。有官殺能量嘅戊土特別適合帶有競爭性、需要勇氣同決斷力嘅行業——管理、創業、需要突破現狀嘅事業都係你嘅舞台。',rel:'你重承諾、重責任，感情路上踏實可靠，另一半知道你係真係在乎。但要注意戊土嘅剛強有時令另一半感受到壓迫，學識適時放軟係你嘅感情功課。'},
+  己:{core:'己土係陰土，就好似肥沃嘅農田。你懂得滋養他人，係個以人為本嘅人，細心、包容、有服務精神，身邊人都樂意親近你。',str:'身強嘅己土包容力強，但要小心被人過度依賴。要學識設立個人界線，保護好自己嘅能量。',wk:'身弱嘅己土容易被人影響，建議建立自己嘅核心價值觀，唔好為遷就別人而迷失自己。',bal:'中和嘅己土照顧他人之餘亦識得照顧自己，係難得嘅平衡——好好珍惜呢個特質。',career:'你適合服務性行業、教育、醫療、HR，或任何需要照顧人嘅工作。你嘅同理心係職場上嘅獨特優勢。',rel:'你在關係入面重視包容同理解，係個好 partner。但記得你自己嘅需要同樣值得被重視。'},
+  庚:{core:'庚金係陽金，就好似一把鋒利嘅劍。你個性果斷、直接、有原則，唔講廢話，做決定唔拖泥帶水。你係一個天然嘅戰士，面對挑戰唔會退縮。',str:'身強嘅庚金鋒芒畢露，但劍太利有時會傷到自己。要學識什麼時候收起鋒芒，以柔制剛係進階智慧。',wk:'身弱嘅庚金需要磨礪，建議多接受挑戰同歷練——愈磨愈光才係真正嘅你。',bal:'中和嘅庚金剛柔有度，鋒芒與柔軟各得其所，係你最難得嘅特質之一。',career:'你適合需要決策力、執行力、競爭性環境嘅工作。法律、工程、體育、創業、金融交易都係你嘅領域。',rel:'你感情直接，以行動同保護表達愛。有時過分強硬，感情係需要柔軟度嘅，學識溫柔係你嘅功課。'},
+  辛:{core:'辛金係陰金，就好似一件精緻嘅珠寶。你有品味、有美感、追求完美，對 quality 有天生嘅觸覺。外表可能冷靜，但內心情感豐富，係個外冷內熱嘅人。',str:'身強嘅辛金光芒閃耀，但要小心完美主義令你錯過夠好嘅選項——唔係每件事都需要100分。',wk:'身弱嘅辛金需要外界認可，但真正嘅價值係內在嘅——要學識欣賞自己本身嘅光芒。',bal:'中和嘅辛金有品味之餘亦識得欣賞不完美，呢個成熟嘅眼光係你嘅人生優勢。',career:'你適合需要審美、品質把關嘅行業。珠寶、時裝、設計、編輯、高端服務業都係你嘅舞台。',rel:'感情上標準較高，但一旦認定係對嘅人，你會認真投入。另一半欣賞你嘅品味同細膩。'},
+  壬:{core:'壬水係陽水，就好似大海或長河咁。你眼界廣闊、思維流動、有野心，永遠想得更遠，適應力強，係個天生嘅策略家。',str:'身強嘅壬水能量充沛，流動四方。記住水需要河道——要設立清晰嘅目標同方向，唔好漫無目的流散。',wk:'身弱嘅壬水流量不足，建議集中精力於一個方向，深挖而非廣撒，穩紮穩打先見成效。',bal:'中和嘅壬水有深度亦有廣度，思維流暢而有根基，係你最珍貴嘅特質組合。',career:'你適合需要策略思維、國際視野嘅工作。金融、貿易、外交、科技、媒體都係你嘅天地。',rel:'你係一個有深度嘅伴侶，感情上需要智識上嘅連結。你討厭沉悶，另一半要跟得上你嘅思維節奏。'},
+  癸:{core:'癸水係陰水，就好似山澗清泉或細雨咁。你有靈氣、有直覺、情感細膩，感受到別人感受唔到嘅嘢，係個天生嘅觀察者同聆聽者。',str:'身強嘅癸水靈感豐富，但情緒波動可能較大，要建立穩定嘅情緒管理方式，令靈感有扎實嘅基礎。',wk:'身弱嘅癸水建議多喝水、接觸大自然、保持規律作息，由外到內補充能量，讓直覺得以發揮。',bal:'中和嘅癸水靈感與理性兼備，係你最強大嘅武器組合，善用呢兩種力量係你嘅人生課題。',career:'你適合需要洞察力、創意嘅工作。心理諮詢、藝術、寫作、靈性領域、市場研究都係你嘅方向。',rel:'你感情深厚，對另一半嘅感受極敏感。識得關心人係你嘅優點，但有時情緒化，要學識理性同感性並用。'},
+};
+
+const TGCAT={
+  '比劫':{name:'比劫 · 同類能量',core:'你嘅命盤比劫（同類能量）較重，代表獨立自主嘅能量強。你意志堅定，一旦決定某事決不輕易改變；自尊心強，明分寸知進退，唔做非分之求。',strength:'自立能力強，口才好，熱忱直率，心思敏捷，善於臨機應變。廣交朋友，有社交才華，係職場上建立人脈嘅天然優勢。在逆境中意志堅定，常能完成心願。',caution:'要注意剛愎自用、易與人發生爭執嘅傾向。廣交朋友但知心朋友較少，有時難以換位思考。財運上，比劫重代表財易因豪爽或競爭而流失，要建立穩健嘅財務規劃。',career:'適合競爭性強、需要獨立判斷嘅行業，或自立門戶。你嘅個人品牌同社交才華係最大資產。'},
+  '食傷':{name:'食傷 · 創意輸出',core:'你嘅命盤食傷（創意輸出）能量強，代表你有豐富嘅表達欲同創造力。你有話想說、有嘢想做，唔受拘束係你嘅天性。食傷旺嘅人往往有「食神洩秀」嘅特質——明朗圓滑，有美感同魅力，表達嘢嚟自然流暢，令人舒服，係天生嘅溝通者。',strength:'創意無限，表達能力強，自我風格鮮明。做嘢傾向打破常規，有時帶嚟驚喜嘅突破。食傷洩秀嘅人言辭優美，人際關係往往比同齡人更融洽，係你嘅天然優勢。',caution:'食傷重嘅人有時顯得我行我素，要注意場合同時機。說得多做得少係需要留意嘅傾向——把創意落地為實際成果，係你要修煉嘅功課。',career:'最適合發揮創意嘅行業——設計、藝術、寫作、演藝、教學、研發。你嘅原創性係你嘅核心競爭力。'},
+  '財星':{name:'財星 · 物質資源',core:'你嘅命盤財星能量突出，代表你對物質資源同實際成果有敏銳觸覺。你精力充沛，精明幹練，善於掌握機遇，生命中往往有意外收穫同巧遇。你腳踏實地，目標感強，唔係空想型嘅人。',strength:'財務意識強，擅長交際，處事圓滑機智，舉止有格，言行有分量。樂觀不怕挫折係你嘅核心優勢——跌低咗你知道點企返起身。慷慨豪爽令身邊人舒服，社交圈子廣係你嘅天然資本。',caution:'豪爽慷慨係優點，但要注意唔好過度花費，財來財去嘅節奏可能令長線積累受阻。財星重嘅人有時過分執著於機遇而忽略穩紮穩打，記得建立穩健嘅財務規劃。',career:'適合商業、金融、貿易、銷售、公關類工作。你嘅交際能力同對市場嘅敏銳觸覺係職場強項，最適合需要開拓人脈同把握機遇嘅崗位。'},
+  '官殺':{name:'官殺 · 紀律壓力',core:'你嘅命盤官殺（管制能量）較強，代表你有高度嘅責任感、紀律性同鬥志。其中七殺代表志大進取、堅強果決、嫉惡如仇、見義勇為——你有衝動去改變、去突破現狀；正官則代表重視規矩同名譽，重承諾、知分寸。',strength:'責任感強，抗壓力高，舉止有威嚴，有天然嘅領導力，旁人往往對你心服口服。勇於突破環境、開創新機係你的核心優勢。忍耐心強，常能在逆境中完成心願。',caution:'官殺重的人要注意：好勝心強可能令你對人產生猜疑，知心朋友較難建立。衝動時行事可能過於剛強，令人難以適應——先想後行係你最需要修煉的功課。',career:'適合需要領導力、決斷力的工作，或勇於突破現狀嘅開拓型事業。政界、法律、軍警、社會改革、競爭激烈嘅商業環境都係你能發光嘅舞台。'},
+  '印星':{name:'印星 · 資源支持',core:'你嘅命盤印星（資源能量）豐富，代表你宅心仁厚，寬容仁慈，不計仇恨，重名譽，講人情。你重視內涵氣質，追求學問，處世圓融，知道怎樣化解衝突而唔係激化它。印星強嘅人往往對宗教、哲學、玄學有天然嘅親近感，知性敏銳係你嘅精神特色。',strength:'學習力強，思維深厚，不斷成長係你嘅特質。貴人往往在關鍵時刻出現，記得識得感恩同把握。你嘅親和力同仁厚係職場上難得嘅軟實力，令人信賴。',caution:'印星重嘅人有時依賴心較強，思想天真不切實際，有時好面子而過於矯飾。要培養自己嘅判斷力，學識獨立作決定，把仁厚嘅心同清晰嘅頭腦結合係你嘅課題。',career:'適合學術、研究、教育、顧問、心理諮詢、宗教文化相關嘅工作。你嘅知識積累係最大嘅長遠資產，而你嘅親和力係職場上不可缺少嘅加分項。'},
+};
+
+const FE_TMPL={
+  木:{strong:'你命盤中木元素旺盛，代表生長力、計劃力同進取心強。你傾向有清晰目標，唔鍾意停滯不前，創意同行動力係你嘅天賦。',weak:'你命盤中木元素偏弱，在計劃執行或長遠目標上需要多一點堅持。建議培養耐性，每天一小步比衝刺更可持續。',advice_weak:'補木建議：多接觸植物同綠色環境，方位以東方為佳，穿搭可加入綠色系，培養創意相關嘅興趣有助補充木能量。',advice_strong:'木旺提醒：注意情緒上嘅彈性，木主生長但亦主固執，學識彎腰係平衡之道。適時補充金能量（白色、精準嘅事物）作調節。'},
+  火:{strong:'你命盤中火元素旺盛，代表熱情、表達力同感染力強。你天生有舞台感，係充滿活力嘅人，社交場合係你發光嘅地方。',weak:'你命盤中火元素偏弱，在自我表達或社交能量上需要多一些積極。建議主動建立連結，讓自己嘅熱情有機會展現。',advice_weak:'補火建議：多參與社交活動，方位以南方為佳，穿搭可加入紅色、橙色系，保持積極嘅社交圈子有助提升火能量。',advice_strong:'火旺提醒：注意情緒管理，避免衝動決策。適時安靜下來沉澱，補充水元素（深色、靜態活動）可帶來平衡。'},
+  土:{strong:'你命盤中土元素旺盛，代表穩定性、可靠性同實際執行力強。你係身邊人嘅定心丸，可信賴程度高，係大家嘅後盾。',weak:'你命盤中土元素偏弱，根基感或安全感可能有時不足。建議建立穩定嘅日常規律，培養踏實嘅生活方式。',advice_weak:'補土建議：保持規律作息，方位以中央、西南為佳，穿搭可加入黃色、棕色系，多食根莖類食物。',advice_strong:'土旺提醒：避免過分保守或固守成規，適時引入變化，木元素（綠色、新事物）可帶來突破同生命力。'},
+  金:{strong:'你命盤中金元素旺盛，代表精準力、決斷力同執行力強。你做事有標準，唔容易妥協，對品質有高要求，係個天生嘅品質把關者。',weak:'你命盤中金元素偏弱，在決斷力或自我界定上可能需要多一點自信。建議培養清晰嘅底線，知道自己要咩、唔要咩。',advice_weak:'補金建議：整理生活空間，斷捨離有助金能量聚集，方位以西方為佳，穿搭可加入白色、金色系。',advice_strong:'金旺提醒：注意唔好過分嚴苛——對自己同對人都係。水元素（流動、包容）可軟化鋒芒。'},
+  水:{strong:'你命盤中水元素旺盛，代表智慧、直覺、流動力同深度思維強。你睇嘢往往比人深一層，係個天生嘅觀察者，洞察力係你嘅超能力。',weak:'你命盤中水元素偏弱，直覺力或思維深度可能需要刻意培養。建議多留白、多反思，讓思維有沉澱嘅空間。',advice_weak:'補水建議：多喝水，親近水源（海、湖、溪），方位以北方為佳，穿搭可加入黑色、深藍色系，冥想同日記寫作有助補充水能量。',advice_strong:'水旺提醒：注意唔好過分內省或情緒化。土元素（規律、實際行動）可帶來接地氣，令深度思維落地為具體成果。'},
+};
+
+// ZW star templates
+const STAR_CORE={
+  '紫微':'命宮坐紫微，係北斗帝星入命。你天生有領袖氣質，重視名譽同地位，身邊人往往不由自主以你為中心。你做事有原則，有一種令人信服嘅威嚴感，面對問題傾向主動主導。',
+  '天機':'命宮坐天機，係北斗智慧星入命。你思維靈活，反應快，有謀略，腦袋停唔落。你擅長分析，能看到別人看不到嘅切入點，係天生嘅策略家。',
+  '太陽':'命宮坐太陽，係中天光明星入命。你天生外向積極，充滿活力，有強烈嘅助人精神同使命感。你就像太陽，自然吸引旁人，發光發熱係你嘅天性。',
+  '武曲':'命宮坐武曲，係北斗財星入命。你天生有財務頭腦，做事果斷、務實、不拖拉。你係行動派，唔空談，遇到問題就解決，係個值得信賴嘅執行者。',
+  '天同':'命宮坐天同，係南斗福星入命。你天生溫和，重視生活品質同感受，有一種福氣在身嘅特質。你唔追求激烈競爭，而係享受過程，能在平靜中找到幸福。',
+  '廉貞':'命宮坐廉貞，係北斗囚星入命。你個性複雜多面，才華橫溢，有魅力，但人生往往有較多跌宕起伏。你嘅能量強烈，善加引導，正面能量同樣驚人。',
+  '天府':'命宮坐天府，係南斗庫星入命。你天生有積累嘅能力，擅長管理資源，係個有耐性、有謀略嘅守成之人。步步為營，最終往往能建立穩固嘅基業。',
+  '太陰':'命宮坐太陰，係南斗月星入命。你天生細膩敏感，有藝術感，情感豐富。你嘅內心世界如同月亮，深邃而豐富，需要時間才能真正被人了解——但認識你嘅人都知道你有多珍貴。',
+  '貪狼':'命宮坐貪狼，係南斗慾望星入命。你才華橫溢，慾望強，社交能力出眾，人生際遇多姿多彩。多才多藝係你嘅標籤，如何在衆多選擇中找到最適合嘅方向係你嘅人生課題。',
+  '巨門':'命宮坐巨門，係南斗暗曜入命。你口才出眾，善於表達，思維深刻，擅長看到問題嘅本質。你係個直話直說嘅人，直言係你嘅特質，時機係你要修煉嘅功課。',
+  '天相':'命宮坐天相，係南斗印星入命。你天生有服務精神，重視協調，係個稱職嘅支持者同協調人。你嘅貴人緣好，往往能得到上司同前輩嘅青睞。',
+  '天梁':'命宮坐天梁，係南斗蔭星入命。你有長輩緣，有貴人緣，有天然嘅保護力在身。你天生有智慧，有一種看透世事嘅從容，往往能在關鍵時刻化險為夷。',
+  '七殺':'命宮坐七殺，係南斗將星入命。你獨立剛強，有衝勁，執行力超強。你係一個不服輸嘅人，面對挑戰反而越戰越勇，係天生嘅開拓者。',
+  '破軍':'命宮坐破軍，係南斗將星（破舊立新）入命。你天生係改革者，勇於打破舊有框架，重新建立新秩序。你嘅人生可能多起伏，但每次低潮後都能蛻變升級。',
+  '武曲天府':'命宮坐武曲天府，財星庫星同宮，係紫微斗數嘅「財庫格」。你天生有超強嘅財務管理能力——不但識賺，更識留住。做事果斷務實，同時有耐性積累，係難得嘅財富型命格。',
+  '紫微天相':'命宮坐紫微天相，帝星得印，官印相生。你兼具領袖魅力同協調能力，既能獨當一面，又懂得以規矩同制度服人。你嘅事業往往在有規模嘅機構中發光。',
+  '天機巨門':'命宮坐天機巨門，智慧口才並重。你思維快，口才好，分析力同表達力同樣出色，係個能把複雜問題說得清清楚楚嘅人。',
+};
+const STAR_CAREER={
+  '紫微':'最適合管理層、企業家或任何需要主導決策嘅角色。你嘅領袖氣質係最大競爭力，放在能發揮你話語權嘅位置才能真正發光。',
+  '天機':'最適合 IT、顧問、研究、策劃等需要思考同分析嘅工作。你嘅智謀係最大資本，要找一個讓你腦袋充分運轉嘅崗位。',
+  '太陽':'最適合公眾事務、教育、公關、政界或任何能服務社會嘅工作。你嘅影響力往往超出你嘅預期，適合在公眾面前發光嘅舞台。',
+  '武曲':'最適合金融、會計、工程或任何需要決策力同執行力嘅工作。你嘅財務意識強，做生意有天份，要建立穩健嘅財務規劃。',
+  '天同':'最適合服務業、藝術、創意或任何能讓你享受過程嘅工作。你在輕鬆愉快嘅環境中效率最高，強迫嘅壓力反而令你發揮失常。',
+  '廉貞':'適合政界、法律、軍警或競爭激烈嘅行業。你嘅才華需要紀律同自律來引導，才能將能量引向正面嘅突破。',
+  '天府':'最適合資產管理、行政管理或任何需要統籌規劃嘅工作。你嘅穩健風格令人信賴，適合在大機構中扮演守護資源嘅角色。',
+  '太陰':'最適合藝術、文化、室內設計或任何需要細膩感知嘅工作。你在安靜、有美感嘅環境工作效率最佳，傾向幕後發揮影響力。',
+  '貪狼':'最適合藝術、娛樂、社交或任何需要魅力同才藝嘅工作。要找一個讓你專注深耕嘅方向才能真正發揮潛力，貪多嚼不爛係你要注意嘅風險。',
+  '巨門':'最適合法律、傳媒、教育或任何需要語言表達嘅工作。你嘅口才係最大武器，善用它並注意表達嘅場合同時機。',
+  '天相':'最適合行政、協調、法律或任何需要輔佐同協助嘅工作。你係讓複雜事情有條不紊運作嘅關鍵人物，貴人緣係你嘅職場優勢。',
+  '天梁':'最適合醫療、法律、宗教、教育或服務社會嘅工作。幫助別人解決問題係你嘅天命，你嘅智慧同從容令人信服。',
+  '七殺':'最適合創業、軍警、體育競技或競爭激烈嘅行業。要在一個能讓你全力衝刺嘅環境才能釋放你嘅能量，閒不住係你嘅本質。',
+  '破軍':'最適合創業、改革型工作或任何需要打破常規嘅行業。你嘅創新精神係最大優勢，唔要把自己困在守舊嘅環境中。',
+  '武曲天府':'最適合金融投資、企業管理或長遠財務規劃嘅工作。你既有行動力，又有積累嘅眼光，係天生嘅資產管理者，事業路線傾向穩中求進。',
+  '紫微天相':'最適合在有規模嘅機構擔任管理要職。紫微帶嚟地位，天相帶嚟制度感，你嘅事業往往能在正規嘅架構內爬上重要崗位。',
+  '天機巨門':'最適合策略分析加上公眾表達嘅工作——顧問、媒體、政策分析、演講培訓都係你嘅強項方向。',
+};
+const STAR_REL={
+  '紫微':'需要一個識得欣賞你、同時又有自己主見嘅伴侶。你嘅自尊心較強，另一半需要懂得給你空間同尊重，一段相互平等嘅關係才能長久。',
+  '天機':'重視溝通同智識共鳴，需要一個能跟上你思維嘅伴侶。有時過度思考反而影響感情，學識用心感受係你嘅功課。',
+  '太陽':'熱情主動，給另一半充足嘅愛同關注。要注意給另一半同等嘅發光空間，感情中的平衡係長久之道。',
+  '武曲':'務實直接，以行動表達愛，唔擅長花言巧語。需要一個理解你實際風格嘅伴侶，一段有共同目標嘅關係令你最有歸屬感。',
+  '天同':'溫柔體貼，好相處。重視感情中嘅快樂與舒適，需要一段輕鬆自在嘅關係，不喜歡太多爭吵同壓力。',
+  '廉貞':'感情豐富，但桃花較旺可能帶來複雜嘅感情線。要培養穩定嘅感情觀，一旦認定就要認真投入同維繫。',
+  '天府':'穩重可靠，給另一半充足嘅安全感。重視承諾，係個能長期相守嘅伴侶，另一半欣賞你嘅踏實同可靠。',
+  '太陰':'深情，但有時過度敏感容易受傷。需要一個有耐性、懂得細心呵護你嘅伴侶，一段溫柔而有深度嘅感情令你最幸福。',
+  '貪狼':'魅力十足，桃花旺盛。要注意感情嘅專一性，學識珍惜眼前嘅人係你嘅課題，一旦投入你係非常有魅力嘅伴侶。',
+  '巨門':'直接坦率，但有時口快心直容易引起誤會。要學識在感情中多一點溫柔同包容，把口才放在表達愛意而非爭辯。',
+  '天相':'體貼周到，重視和諧，往往在感情中扮演調和者嘅角色。需要另一半同樣珍惜你嘅付出，唔要讓你嘅善意被視為理所當然。',
+  '天梁':'有保護欲，喜歡照顧另一半。要注意給另一半足夠嘅自主空間，一段相互尊重同扶持嘅穩定關係最適合你。',
+  '七殺':'獨立，有時令另一半感到你唔需要對方。其實你深情，只係唔擅長表達——放下防衛係你嘅感情功課。',
+  '破軍':'感情路可能有變化，但每段關係都係你成長嘅契機。需要一個能欣賞你每個版本嘅伴侶，陪你一起蛻變。',
+  '武曲天府':'你係可靠嘅伴侶，但可能唔係最浪漫嘅那種。你以實際行動表達愛，傾向為另一半打好物質基礎，需要另一半能欣賞你嘅務實同可靠。',
+  '紫微天相':'感情上你有地位意識，唔輕易委曲求全。你需要一個真正尊重你嘅伴侶，兩人之間嘅相互尊重係基礎，一旦建立，這段關係往往非常穩固。',
+  '天機巨門':'感情上你重視溝通，話語係你最有力嘅表達工具。你需要一個能接受你直言性格同思維跳躍嘅伴侶。',
+};
+const GUANLU_STAR={'紫微天相':'紫微天相同宮入官祿，係「帝星得印」嘅貴格。紫微係北斗帝星，代表地位同領導力；天相係印星，代表制度同輔佐力量。兩者同宮代表你嘅事業有貴人扶持，容易在機構中獲得賞識同晉升，適合在有規模嘅機構擔任管理職位。','武曲天府':'武曲天府同宮入官祿，財星庫星主事業，代表你嘅職業與財務緊密結合，事業成就直接帶嚟財富積累。最適合金融、投資、企業管理等需要長遠財務眼光嘅工作。','廉貞':'廉貞入官祿，事業心強，有野心，但要注意事業中嘅是非——有時因過度追求而惹禍，要學識有所取捨。','紫微':'紫微係北斗帝星，入官祿代表你嘅事業往往能達到較高嘅地位，有機會出人頭地，適合在有話語權嘅崗位發揮。','天機':'天機智慧星入官祿，代表你靠腦力同謀略在事業上立足，思維靈活係你嘅核心競爭力，適合策略性嘅工作崗位。','天相':'天相印星入官祿，代表你在機構中容易得到重用，適合制度性強嘅組織，貴人緣係你嘅事業最大助力。','七殺':'七殺將星入官祿，事業路上競爭激烈，但越挫越勇。適合開創型嘅事業，要有心理準備人生事業可能有大起落。','破軍':'破軍入官祿，事業路線可能多變，適合改革型或需要不斷創新嘅行業。你嘅事業往往有別於常人，走嘅係獨特嘅路。','太陽':'太陽光明星入官祿，代表你嘅事業公開透明，適合在公眾面前發光，社會影響力係你嘅事業資本。','武曲':'武曲財星入官祿，代表你嘅事業與財務緊密掛鉤，做生意或財務相關工作表現最突出。','天梁':'天梁蔭星入官祿，代表你事業上有長輩扶持，適合服務社會嘅行業，往往以智慧同從容在職場嶄露頭角。','天府':'天府庫星入官祿，代表事業穩健，有積累性，適合大機構或資源管理型嘅工作，事業基礎往往比同齡人更穩固。'};
+const CAIBU_STAR={'廉貞':'廉貞為官祿主，落財帛宮代表財富主要來自工作能力同事業成就，唔宜依賴偏財或投機。腳踏實地、以工作能力生財係你嘅正財之路——事業愈強，財運愈旺。','武曲天府':'武曲天府同宮入財帛，財星庫星加持，係財帛最旺嘅格局之一。代表你既有賺錢嘅能力，亦有留住財富嘅本事，財富積累能力超強，係命盤中難得嘅「財庫豐盈」象徵。','武曲':'武曲財星入財帛宮如魚得水，代表財運強勁，有天生嘅理財能力，適合從事金融相關工作，財富積累能力強。','天府':'天府庫星入財帛，代表你擅長積累同保存財富，財來財守，係個天生嘅守財者。','七殺':'七殺入財帛代表財來財去起伏大，財運與競爭密切相關。適合以競爭力生財，但要注意穩健嘅財務規劃，避免大起大落。','破軍':'破軍入財帛代表財運多變化，可能有大起大落。要建立穩健嘅財務基礎，守業同開拓要取得平衡。','貪狼':'貪狼入財帛代表財路多元，有偏財運，適合投資或副業創收，但要注意要有節制同清晰嘅財務目標。'};
+const FUQI_STAR={'破軍':'破軍星落夫妻宮，係一個充滿變化同轉折嘅感情格局。破軍係破舊立新之星，落夫妻宮意味感情路可能有較多起伏，另一半個性獨立、有主見，甚至可能係你人生中嘅轉變催化劑。要讓這段關係長久，需要足夠嘅包容心同適應能力，把感情中嘅變化視為共同成長嘅機遇。感情路雖有波折，但往往成就最深刻嘅連結。','廉貞':'廉貞入夫妻，感情路較複雜，桃花運旺但正緣可能姍姍來遲。另一半往往個性鮮明、有魅力，感情充滿激情同張力，需要學識欣賞差異而非被其磨耗。','貪狼':'貪狼入夫妻，桃花極旺，感情選擇多，容易對感情有高期望。要學識專一，才能在衆多選擇中找到並珍惜真正適合你嘅人。','七殺':'七殺入夫妻，另一半個性強悍、有主見，兩人可能常有摩擦。但若能相互尊重各自嘅獨立性，反而能激發彼此嘅潛力。','紫微':'紫微入夫妻，另一半往往有一定嘅地位或實力，感情路上可能遇到有背景嘅對象。要注意兩人之間嘅主導權平衡，互相尊重係長久之道。','太陽':'太陽入夫妻，另一半外向積極，充滿活力，係你生活中嘅陽光。感情路上光明磊落，但要注意另一半嘅社交活躍可能帶嚟嫉妒心。','太陰':'太陰入夫妻，另一半細膩溫柔，感情深厚，重視私密空間。兩人可能關係親密但對外低調，係一段舒適而有深度嘅感情。','天機':'天機入夫妻，另一半思維靈活，可能話多或善變。感情需要有耐性同充分溝通，多一點信任，少一點分析。','武曲':'武曲入夫妻，另一半務實果斷，感情以行動表達，需要學識在實際之外增加一點浪漫同溫柔。','天梁':'天梁入夫妻，另一半有智慧，可能年紀比你大或者更成熟。這段感情有長輩保護嘅特質，另一半係你生命中嘅指引者同守護者。','巨門':'巨門入夫妻，感情中溝通特別重要，但口舌是非可能多。另一半口才好，感情中有時言語衝突，但也因此深入了解——學識有效溝通係這段關係嘅關鍵。'};
+
+const VLINES=['記住命盤係出發點，唔係終點——你嘅選擇先係最終嘅答案。','命理分析係一面鏡，係你認識自己嘅工具，而唔係限制你嘅框框。','了解自己係所有改變嘅起點，呢份自我認知係你最重要嘅資產。','天時地利人和，但最重要嘅係你自己願意努力嘅那份心。','命理係提供視角，最後點行係你話事——呢個係最重要嘅。','世上無完美命盤，每個人都有優勢同功課，重要係識用自己嘅長處。','你嘅命盤係獨特嘅，就好似指紋咁，係你個人能量嘅地圖。','命好唔如運好，運好唔如心態好——保持開放，保持前進。'];
+
+// ── ASSEMBLY ──
+function pickV(seed,off){return VLINES[(seed+off)%VLINES.length];}
+function rSec(label,body){return`<div style="margin-bottom:20px"><div style="font-size:.7rem;color:#c9a84c;letter-spacing:3px;margin-bottom:8px;text-transform:uppercase;font-weight:600">${label}</div><div style="color:#f0ead8;line-height:1.85;font-size:.93rem">${body}</div></div>`;}
+function rDiv(){return`<div style="height:1px;background:rgba(201,168,76,.12);margin:18px 0"></div>`;}
+function buildWxBar(fe){const vals=WXN.map(w=>fe[w]||0),mx=Math.max(...vals)||1;return WXN.map((w,i)=>{const v=vals[i],b=Math.round(v/mx*8);return`${w} ${'█'.repeat(b)}${'░'.repeat(8-b)} ${v.toFixed(1)}`;}).join('\n');}
+function starBadge(stars){return stars.length?`<span style="color:#e8c96a;font-weight:600">${stars.join('　')}</span>`:'<span style="color:rgba(240,234,216,.35)">空宮</span>';}
+function getStarTmpl(tmplObj,stars){const ck=stars.join('');return tmplObj[ck]||tmplObj[stars[0]]||'';}
+
+function assembleTab0(bd){
+  const{dp,dms,flags,seed}=bd,dm=dp.gan,p=DMP[dm],sk=dms.key==='str'?'str':dms.key==='wk'?'wk':'bal';
+  let h='';
+  h+=rSec(`日元 · ${dm}（${TGwx[dp.gi]}）· ${dms.label}`,`${p.core}<br><br>${p[sk]}`);
+  h+=rDiv()+rSec('事業走向',p.career);
+  h+=rDiv()+rSec('感情特質',p.rel);
+  if(flags.hasCreativity&&flags.hasWealth)h+=rDiv()+rSec('食傷生財格局','你嘅命盤食傷能量強而財星同時旺盛，係命理入面嘅「食傷生財」格局——即係以才華、創意、表達力直接創造財富。你唔適合死守一份固定工作，最發揮嘅場景係將你嘅才能轉化為收入：自由創作、顧問服務、表達性行業都係你嘅天地。');
+  // 日坐長生：日支係寅申巳亥（長生地）觸發
+  const dayZhi=bd.dp.zi;if([2,8,5,11].includes(dayZhi))h+=rDiv()+rSec('日坐長生','你嘅日支坐長生之地，代表性格溫和、順應自然、怡然自得。品學兼優、福德雙備係你生命嘅底色——你有一種令周圍人舒服嘅自然氣質，無需刻意，別人已樂意親近你。');
+  else if(flags.hasResource&&flags.isWeak)h+=rDiv()+rSec('命盤亮點','印星護身弱，係「貴人助力型」嘅格局。重視貴人關係、持續學習，善用外界支持係你嘅人生訣竅。');
+  else if(flags.hasAuthority&&flags.isStrong)h+=rDiv()+rSec('命盤亮點','官殺遇身強，係「逆境愈強」嘅特質。挑戰愈大，你發揮愈好，適合競爭激烈嘅事業環境。');
+  if(flags.maxWx==='火'&&flags.hasPeers)h+=rDiv()+rSec('命盤性格特質','火旺比劫重，代表你精力充沛、行動力強，有話直說係你嘅魅力。但要注意火旺容易性急、衝口而出，先聆聽後表達、情緒平靜後才說話，係你提升人際關係最有效嘅一步。');
+  if(flags.hasAuthority&&flags.hasPeers)h+=rDiv()+rSec('官殺與比劫並見','命盤中官殺同比劫並見，你既有責任感同紀律性，又有強烈嘅個人主見——兩者係一種張力。善用呢種張力，能獨立自主又能在框架內發揮，係你嘅成功之道。');
+  if(flags.maxWx==='木'&&flags.hasAuthority)h+=rDiv()+rSec('木旺的特質','你命盤中木能量最強，對應官殺——代表生命中充滿了推動你前進嘅挑戰同壓力。木盛亦主惻隱之心，你有天然嘅同情心同正義感，見義勇為係你骨子裡的本能。善用呢份心去影響身邊的人，係你最有力量的方式。');
+  if(flags.hasAuthority&&flags.isWeak)h+=rDiv()+rSec('官殺重身弱的啟示','命盤官殺較重而日元偏弱，代表你面對的壓力同挑戰比一般人多。但在命理智慧中，這往往同時代表你在逆境中的爆發力驚人——困難係鍛鍊你的場地，而唔係終點。與其正面硬撼，不如以智取勝、韌性突破。');
+  h+=`<div style="font-size:.78rem;color:rgba(240,234,216,.45);margin-top:18px;font-style:italic;border-left:2px solid rgba(201,168,76,.25);padding-left:12px">${pickV(seed,0)}</div>`;
+  return h;
+}
+
+function assembleTab1(bd){
+  const{tg,flags,seed}=bd,{sorted}=tg,t1=sorted[0][0],t2=sorted[1][0],p1=TGCAT[t1],p2=TGCAT[t2];
+  let h='';
+  h+=rSec('十神分佈',sorted.map(([k,v])=>`${k} ×${v}`).join('　　'));
+  h+=rDiv()+rSec(`主導：${p1.name}`,`${p1.core}<br><br><strong style="color:#e8c96a">優勢：</strong>${p1.strength}<br><strong style="color:#e8c96a">注意：</strong>${p1.caution}`);
+  if(sorted[1][1]>0)h+=rDiv()+rSec(`輔助：${p2.name}`,p2.core);
+  h+=rDiv()+rSec('事業傾向',p1.career);
+  if(flags.hasWealth&&flags.hasCreativity)h+=rDiv()+rSec('命盤組合','財星＋食傷係「以才藝創造財富」嘅黃金組合，適合用創意能力轉化為收入，自由職業或創業潛力高。');
+  else if(flags.hasResource&&flags.hasCreativity)h+=rDiv()+rSec('命盤組合','印星＋食傷係「學識派生創意」嘅組合，你嘅創意往往來自深厚嘅知識積累，持續學習係你源源不絕嘅動力。');
+  else if(flags.hasAuthority&&flags.hasResource)h+=rDiv()+rSec('命盤組合','官殺＋印星係「有規有矩、有知識有地位」嘅組合，適合需要專業資格嘅職業或大機構嘅管理層路線。');
+  h+=`<div style="font-size:.78rem;color:rgba(240,234,216,.45);margin-top:18px;font-style:italic;border-left:2px solid rgba(201,168,76,.25);padding-left:12px">${pickV(seed,1)}</div>`;
+  return h;
+}
+
+function assembleTab2(bd){
+  const{feRaw,flags,seed}=bd,{maxWx,minWx}=flags,mx=FE_TMPL[maxWx],mn=FE_TMPL[minWx];
+  let h='';
+  h+=rSec('五行分佈　（天干×2　地支×1　藏干×0.5）',`<pre style="font-size:.82rem;line-height:1.9;color:rgba(240,234,216,.82);font-family:monospace;margin:0">${buildWxBar(feRaw)}</pre>`);
+  h+=`<div style="font-size:.74rem;color:rgba(240,234,216,.4);margin-top:8px;padding:8px 12px;background:rgba(255,255,255,.025);border-radius:6px">💡 本系統採用主氣藏干法（天干×2，地支×1，主藏干×0.5）。不同計算方式（如等權計法）可能令個別五行排序略有出入，屬正常差異。</div>`;
+  h+=rDiv()+rSec(`最旺 · ${maxWx}`,mx.strong);
+  h+=rDiv()+rSec(`最弱 · ${minWx}`,mn.weak);
+  h+=rDiv()+rSec('平衡建議',mn.advice_weak);
+  if(maxWx!==minWx)h+=rDiv()+rSec(`${maxWx}旺提醒`,mx.advice_strong);
+  h+=`<div style="font-size:.78rem;color:rgba(240,234,216,.45);margin-top:18px;font-style:italic;border-left:2px solid rgba(201,168,76,.25);padding-left:12px">${pickV(seed,2)}</div>`;
+  return h;
+}
+
+function assembleTab3(bd){
+  const{zw,seed}=bd;
+  const{lp,palaces,ju,mingzhu,shenzhu,lmUsed,ldUsed,lmApprox,ldApprox,pStars,zwPos}=zw;
+  const mingP=palaces[0],guanluP=palaces[8],fuqiP=palaces[2],caibuP=palaces[4];
+  const mingStars=pStars[mingP.branch]||[],guanluStars=pStars[guanluP.branch]||[];
+  const fuqiStars=pStars[fuqiP.branch]||[],caibuStars=pStars[caibuP.branch]||[];
+  const mingCore=getStarTmpl(STAR_CORE,mingStars),mingCareer=getStarTmpl(STAR_CAREER,mingStars),mingRel=getStarTmpl(STAR_REL,mingStars);
+  const guanluDesc=getStarTmpl(GUANLU_STAR,guanluStars),caibuDesc=getStarTmpl(CAIBU_STAR,caibuStars),fuqiDesc=getStarTmpl(FUQI_STAR,fuqiStars);
+  const card=(label,val,sub)=>`<div style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:10px;padding:10px 16px;text-align:center"><div style="font-size:.65rem;color:#c9a84c;letter-spacing:2px;margin-bottom:4px">${label}</div><div style="font-size:1.05rem;font-weight:700;color:#f0ead8">${val}</div>${sub?`<div style="font-size:.65rem;color:rgba(240,234,216,.4);margin-top:2px">${sub}</div>`:''}</div>`;
+  let h=`<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px">
+    ${card('五行局',ju.juLabel,`大限起${ju.juNum}歲`)}${card('命主',mingzhu,'')}${card('身主',shenzhu,'')}
+    ${card('農曆月',lmUsed+'月',lmApprox?'估算':'已確認')}
+    ${card('農曆日',ldUsed+'日',ldApprox?'估算（陽曆日）':'已確認')}
+  </div>`;
+  h+=rSec(`命宮 · ${mingP.gz} · ${starBadge(mingStars)}`,mingCore||`命宮落${mingP.branchName}宮，宮位干支為${mingP.gz}。`);
+  h+=rDiv()+rSec(`事業宮（官祿）· ${guanluP.gz} · ${starBadge(guanluStars)}`,(mingCareer?`<strong style="color:#e8c96a">命宮性格與事業：</strong>${mingCareer}<br><br>`:'')+( guanluDesc?`<strong style="color:#e8c96a">官祿宮（${guanluStars.join('、')||'空宮'}）：</strong>${guanluDesc}`:''));
+  h+=rDiv()+rSec(`感情宮（夫妻）· ${fuqiP.gz} · ${starBadge(fuqiStars)}`,(mingRel?`<strong style="color:#e8c96a">命宮感情特質：</strong>${mingRel}<br><br>`:'')+( fuqiDesc?`<strong style="color:#e8c96a">夫妻宮（${fuqiStars.join('、')||'空宮'}）：</strong>${fuqiDesc}`:''));
+  h+=rDiv()+rSec(`財帛宮 · ${caibuP.gz} · ${starBadge(caibuStars)}`,caibuDesc?`<strong style="color:#e8c96a">財帛宮（${caibuStars.join('、')||'空宮'}）：</strong>${caibuDesc}`:`財帛宮落${caibuP.branchName}宮（${caibuP.gz}），宮位空缺，財運較中性，需靠後天努力積累。`);
+  const palHtml=palaces.map(p=>{const st=pStars[p.branch]||[];return`<div style="background:rgba(255,255,255,.03);border:1px solid rgba(201,168,76,.15);border-radius:8px;padding:8px 10px;text-align:center"><div style="font-size:.62rem;color:#c9a84c;margin-bottom:2px">${p.name}</div><div style="font-size:.88rem;font-weight:600;color:#e8c96a">${p.gz}</div><div style="font-size:.65rem;color:rgba(240,234,216,.55);margin-top:2px">${st.join(' ')||'—'}</div></div>`;}).join('');
+  h+=rDiv()+rSec('十二宮位一覽（含主星）',`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:4px">${palHtml}</div>`);
+  h+=`<div style="font-size:.76rem;color:rgba(240,234,216,.38);margin-top:20px;padding:10px 14px;background:rgba(255,255,255,.03);border-radius:8px;border-left:2px solid rgba(201,168,76,.25);line-height:1.7">⚠️ 此為簡化版紫微斗數入門解讀。命宮以農曆月份推算（${lmApprox?'估算值，建議填入正確農曆月份':'已確認'}）；紫微星位以農曆日推算（${ldApprox?'估算值，以陽曆日代替，建議填入正確農曆日以確保星盤準確':'已確認'}）。精確星曜排盤需配合完整農曆資料及全套星曜安宮邏輯，建議向專業命理師查詢。</div>`;
+  h+=`<div style="font-size:.78rem;color:rgba(240,234,216,.45);margin-top:14px;font-style:italic;border-left:2px solid rgba(201,168,76,.25);padding-left:12px">${pickV(seed,3)}</div>`;
+  return h;
+}
+
+// ── UI ──
+let baziData=null;
+function doCalc(){
+  const y=parseInt(document.getElementById('yr').value);
+  const m=parseInt(document.getElementById('mo').value);
+  const d=parseInt(document.getElementById('dy').value);
+  const h=parseInt(document.getElementById('hr').value);
+  const loc=document.getElementById('loc').value||'香港';
+  const sex=document.getElementById('sex').value||'未填寫';
+  const lmInput=document.getElementById('lm').value;
+  const ldEl=document.getElementById('ld');const ldInput=ldEl&&ldEl.value?ldEl.value:'';
+  if(!y||!m||!d||isNaN(h)){alert('請填晒所有出生資料喇！');return}
+  const yp=calculateYearPillar(y),mp=calculateMonthPillar(y,m,d);
+  const dp=calculateDayPillar(y,m,d),hp=calculateHourPillar(dp.gi,h);
+  const cols=[{l:'年柱',...yp},{l:'月柱',...mp},{l:'日柱',...dp},{l:'時柱',...hp}];
+  const zodiac=ZO[((y-4)%12+12)%12];
+  const feRaw=calculateFiveElements([yp,mp,dp,hp]);
+  const tg=calculateTenGods(dp.gi,[yp,mp,dp,hp]);
+  const dms=evaluateDayMasterStrength(dp.gi,mp,[yp,mp,dp,hp]);
+  const zw=calculateZiWeiStructure(y,m,d,h,yp,lmInput,ldInput);
+  const flags=buildConditionFlags(feRaw,tg,dms);
+  const seed=(y+m*3+d*7+h*11)%VLINES.length;
+  baziData={y,m,d,h,loc,sex,yp,mp,dp,hp,cols,zodiac,feRaw,tg,dms,zw,flags,seed};
+  document.getElementById('pillars').innerHTML=cols.map(p=>`<div class="pillar"><div class="p-label">${p.l}</div><div class="p-gan">${p.gan}</div><div class="p-zhi">${p.zhi}</div><div class="p-wx">${p.wx}</div></div>`).join('');
+  const res=document.getElementById('res');res.classList.add('show');
+  for(let i=0;i<4;i++){const rd=document.getElementById(`rd-${i}`),btn=document.getElementById(`gb-${i}`);rd.innerHTML='';rd.style.whiteSpace='normal';btn.disabled=false;btn.textContent='㩒呢度生成解讀 →';btn.style.display='inline-block';}
+  switchTab(0);res.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function switchTab(i){for(let j=0;j<4;j++){document.getElementById(`tbtn-${j}`).classList.toggle('active',j===i);document.getElementById(`tp-${j}`).classList.toggle('show',j===i);}}
+function genTab(idx){
+  if(!baziData)return;
+  const btn=document.getElementById(`gb-${idx}`),rd=document.getElementById(`rd-${idx}`);
+  btn.disabled=true;btn.textContent='分析緊...';
+  rd.innerHTML='<div class="dots">算緊<span>.</span><span>.</span><span>.</span></div>';rd.style.whiteSpace='normal';
+  setTimeout(()=>{
+    let html='';
+    try{if(idx===0)html=assembleTab0(baziData);else if(idx===1)html=assembleTab1(baziData);else if(idx===2)html=assembleTab2(baziData);else if(idx===3)html=assembleTab3(baziData);}
+    catch(e){rd.innerHTML='<div style="color:rgba(240,234,216,.5)">解讀生成時遇到問題，請重試。</div>';btn.disabled=false;btn.textContent='重試 →';btn.style.display='inline-block';return;}
+    rd.innerHTML=html;btn.style.display='none';
+  },380);
+}
+</script>
+</body>
+</html>
